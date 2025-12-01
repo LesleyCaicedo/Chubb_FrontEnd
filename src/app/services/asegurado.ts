@@ -2,6 +2,9 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { FiltradoModel } from '../models/filtrado.model';
+import { ResponseModel } from '../models/ResponseModel';
+import { Observable } from 'rxjs';
+import { AseguradoModel } from '../models/asegurado.model';
 
 @Injectable({
   providedIn: 'root',
@@ -11,15 +14,27 @@ export class Asegurado {
 
   constructor(private http: HttpClient) { }
 
-  obtenerAsegurados(filtros: FiltradoModel) {
-    return this.http.post<any>(`${this.baseUrl}/ConsultarAsegurados`, filtros);
+  obtenerAsegurados(filtros: FiltradoModel): Observable<ResponseModel>  {
+    return this.http.post<ResponseModel>(`${this.baseUrl}/ConsultarAsegurados`, filtros);
   }
 
-  obtenerSeguros(filtros: FiltradoModel, id: number) {
-    return this.http.post<any>(`${this.baseUrl}/ConsultarAseguradoId?id=${id}`, filtros);
+  obtenerSeguros(filtros: FiltradoModel, id: number): Observable<ResponseModel>  {
+    return this.http.post<ResponseModel>(`${this.baseUrl}/ConsultarAseguradoId?id=${id}`, filtros);
   }
 
-  cargaMasiva(formData: FormData) {
-    return this.http.post<any>(`${this.baseUrl}/upload`, formData);
+  RegistrarAsegurado(Seguro: AseguradoModel): Observable<ResponseModel> {
+      return this.http.post<ResponseModel>(`${this.baseUrl}/registrar`, Seguro);
+  }
+
+  ActualizarAsegurado(Seguro: AseguradoModel): Observable<ResponseModel> {
+    return this.http.post<ResponseModel>(`${this.baseUrl}/ActualizarAsegurado`, Seguro);
+  }
+
+  EliminarAsegurado(id: number): Observable<ResponseModel> {
+    return this.http.delete<ResponseModel>(`${this.baseUrl}/EliminarAsegurado/${id}`);
+  }
+    
+  cargaMasiva(formData: FormData): Observable<ResponseModel>  {
+    return this.http.post<ResponseModel>(`${this.baseUrl}/upload`, formData);
   }
 }

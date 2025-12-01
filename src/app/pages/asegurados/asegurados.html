@@ -25,8 +25,8 @@
                         <span class="sm:hidden">Cargar</span>
                     </button>
                     <button class="btn btn-soft btn-primary w-full sm:w-auto text-sm sm:text-base" 
-                        onclick="modal_registro_cliente.show()">
-                        <ng-icon name="heroUserPlus"></ng-icon> 
+                        (click)="abrirModalRegistroNuevo()">
+                        <ng-icon name="heroUserPlus"></ng-icon>
                         <span class="hidden sm:inline">Registrar Asegurados</span>
                         <span class="sm:hidden">Registrar</span>
                     </button>
@@ -84,9 +84,9 @@
                                 <td class="flex gap-2">
                                     <button class="btn btn-soft btn-success p-3" (click)="abrirDetalleAsegurado(asegurado.idAsegurado)"><ng-icon
                                             name="heroEye"></ng-icon></button>
-                                    <button class="btn btn-soft btn-info p-3"><ng-icon
+                                    <button class="btn btn-soft btn-info p-3" (click)="abrirModalEditar(asegurado)"><ng-icon
                                             name="heroPencilSquare"></ng-icon></button>
-                                    <button class="btn btn-soft btn-error p-3"><ng-icon
+                                    <button class="btn btn-soft btn-error p-3" (click)="eliminarAsegurado(asegurado)"><ng-icon
                                             name="heroTrash"></ng-icon></button>
                                 </td>
                             </tr>
@@ -110,4 +110,6 @@
 <!-- Vistas parciales (Modales) -->
 <app-asegurados-carga-masiva (submitEvent)="EventoExitoso($event)"></app-asegurados-carga-masiva>
 <app-modal-seguros *ngIf="aseguradoSeleccionado" [id]="aseguradoSeleccionado" (cerrar)="cerrarModal()"></app-modal-seguros>
+<app-registro-asegurado [aseguradoUpdt]="aseguradoEditar" (submitEvent)="EventoExitoso($event)"></app-registro-asegurado>
+
 

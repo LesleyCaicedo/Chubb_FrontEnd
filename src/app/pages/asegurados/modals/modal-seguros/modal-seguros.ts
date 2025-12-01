@@ -1,8 +1,9 @@
 import { Component, Input, OnChanges } from '@angular/core';
-import { FiltradoModel } from '../../../models/filtrado.model';
 import { CommonModule } from '@angular/common';
-import { Paginador } from '../../../components/paginador/paginador';
-import { Asegurado as AseguradoService } from '../../../services/asegurado';
+import { Asegurado as AseguradoService } from '../../../../services/asegurado';
+import { Paginador } from '../../../../components/paginador/paginador';
+import { FiltradoModel } from '../../../../models/filtrado.model';
+
 
 @Component({
   selector: 'app-modal-seguros',

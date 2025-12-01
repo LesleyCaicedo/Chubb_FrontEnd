@@ -1,0 +1,71 @@
+/* Animaciones para las alertas */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.animate-fade-out {
+  animation: fadeOut 0.3s ease-in-out;
+}
+
+/* Toast container */
+.toast {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.toast > * {
+  pointer-events: auto;
+}
+
+.toast-top {
+  top: 0;
+}
+
+.toast-end {
+  right: 0;
+}
+
+.alert {
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  min-width: 300px;
+}
+
+@media (max-width: 640px) {
+  .toast {
+    left: 1rem;
+    right: 1rem;
+    padding: 0.5rem;
+  }
+  
+  .alert {
+    min-width: auto;
+  }
+}

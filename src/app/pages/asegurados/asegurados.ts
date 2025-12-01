@@ -8,11 +8,13 @@ import { FiltradoModel } from '../../models/filtrado.model';
 import { AseguradoModel } from '../../models/asegurado.model';
 import { Asegurado } from '../../services/asegurado';
 import { debounceTime, distinctUntilChanged, fromEvent, map } from 'rxjs';
-import { ModalSeguros } from './modal-seguros/modal-seguros';
+import { ModalSeguros } from './modals/modal-seguros/modal-seguros';
+import { AlertService } from '../../services/alert';
+import { RegistroAsegurado } from './modals/registro.asegurado/registro.asegurado';
 
 @Component({
   selector: 'app-asegurados',
-  imports: [NgIcon, Paginador, AseguradosCargaMasiva, CommonModule, ModalSeguros],
+  imports: [NgIcon, Paginador, AseguradosCargaMasiva, CommonModule, ModalSeguros, RegistroAsegurado],
   templateUrl: './asegurados.html',
   styleUrl: './asegurados.css',
   providers: [
@@ -28,11 +30,12 @@ import { ModalSeguros } from './modal-seguros/modal-seguros';
 })
 export class Asegurados implements OnInit {
   @ViewChild('filtroTexto') filtroTexto!: ElementRef;
-  listaAsegurados: AseguradoModel[] | null = null;
+    @ViewChild(RegistroAsegurado) registroComp!: RegistroAsegurado;
+  aseguradoEditar: AseguradoModel | null = null;
+  listaAsegurados: AseguradoModel[] = [];
   registrosFiltrados: number = 0;
   registrosTotales: number = 0;
   urlEliminar: string = '';
-  
   aseguradoSeleccionado: number | null = null;
 
   filtros: FiltradoModel = {
@@ -41,7 +44,7 @@ export class Asegurados implements OnInit {
     tamanioPagina: 10
   };
 
-  constructor(private aseguradoService: Asegurado) { }
+  constructor(private aseguradoService: Asegurado, private alertService: AlertService ) { }
 
   ngOnInit(): void {
     this.obtenerAsegurados();
@@ -65,16 +68,38 @@ export class Asegurados implements OnInit {
         this.listaAsegurados = resp.datos.asegurados;
         this.registrosTotales = resp.datos.registrosTotales;
         this.registrosFiltrados = resp.datos.registrosFiltrados;
+      },
+      error: (error) => {
+        this.alertService.error('error', 'Error al cargar asegurados');
+
       }
     });
   }
 
   editarAsegurado(index: number) { 
-    console.log('Editar asegurado:', this.listaAsegurados?.[index]);
+    this.aseguradoEditar = { ...this.listaAsegurados[index] };
   }
 
-  eliminarAsegurado(index: number) { 
-    console.log('Eliminar asegurado:', this.listaAsegurados?.[index]);
+    async eliminarAsegurado(asegurado: AseguradoModel) {
+    const confirmado = await this.alertService.mostrarConfirmacion(
+      '¿Estás seguro?',
+      `¿Deseas eliminar "${asegurado.nombre}"?`,
+      'warning',
+      'Sí, eliminar',
+      'Cancelar'
+    );
+
+    if (confirmado) {
+      this.aseguradoService.EliminarAsegurado(asegurado.idAsegurado).subscribe({
+        next: () => {
+          this.alertService.success('¡Eliminado!', 'Asegurado eliminado exitosamente');
+          this.obtenerAsegurados();
+        },
+        error: () => {
+          this.alertService.error('Error', 'No se pudo eliminar');
+        }
+      });
+    }
   }
 
   onChangeViewValue(event: any) {
@@ -105,8 +130,9 @@ export class Asegurados implements OnInit {
     return edad;
   }
 
-  EventoExitoso(evento: any) {
-    if (evento) {
+  EventoExitoso(exitoso: boolean) {
+    if (exitoso) {
+      this.alertService.success('¡Éxito!', 'Seguro registrado correctamente');
       this.obtenerAsegurados();
     }
   }
@@ -120,6 +146,16 @@ export class Asegurados implements OnInit {
     } else {
       this.aseguradoSeleccionado = idAsegurado;
     }
+  }
+
+    abrirModalRegistroNuevo() {
+    // Llama al método público del hijo
+    this.registroComp?.open();
+  }
+
+  abrirModalEditar(asegurado: AseguradoModel) {
+    // pasas el asegurado para que el hijo haga el patch y muestre modal
+    this.registroComp?.open(asegurado);
   }
 
   cerrarModal(): void {
