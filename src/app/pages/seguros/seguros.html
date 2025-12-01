@@ -1,1 +1,127 @@
-<p>seguros works!</p>
+<div class="flex flex-col justify-between h-full">
+    <div class="seguro-container flex flex-col gap-2 p-2 sm:p-4">
+        <div class="seguro-header mb-2">
+            <span class="text-2xl sm:text-3xl font-semibold text-gray-500">Seguros</span>
+        </div>
+        <div class="seguro-body">
+            <!-- Config -->
+            <div class="flex flex-col sm:flex-row sm:justify-between gap-3 mb-4">
+                <div class="flex items-center text-sm sm:text-base">
+                    Mostrar&nbsp;
+                    <select class="select h-10 focus:outline-0 outline-0 focus-within:outline-0"
+                        (change)="onChangeViewValue($event)">
+                        <option value="5">5</option>
+                        <option value="10" selected>10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>&nbsp;elementos
+                </div>
+                <div class="flex gap-2">
+                    <button class="btn btn-soft btn-primary w-full sm:w-auto text-sm sm:text-base" 
+                        onclick="modal_registro_seguro.show()">
+                        <ng-icon name="heroUserPlus"></ng-icon> 
+                        <span class="hidden sm:inline">Registrar Seguros</span>
+                        <span class="sm:hidden">Registrar</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Acordion collapse -->
+            <div class="bg-base-100 border-base-300 collapse collapse-arrow border mb-5">
+                <input type="checkbox" [checked]="true" class="peer" />
+                <div class="collapse-title">
+                    <div class="flex gap-2 items-center">
+                        <ng-icon name="heroFunnel"></ng-icon>
+                        <span class="text-sm sm:text-base text-gray-700">Búsqueda Filtrada</span>
+                    </div>
+                </div>
+                <div class="collapse-content">
+                    <div class="flex flex-col sm:flex-row gap-3 sm:gap-5">
+                        <label class="input w-full">
+                            <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <g stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" fill="none"
+                                    stroke="currentColor">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <path d="m21 21-4.3-4.3"></path>
+                                </g>
+                            </svg>
+                            <input #filtroTexto type="search" required placeholder="Buscar..."
+                                [disabled]="(!listaSeguros || listaSeguros.length <= 0) && registrosTotales <= 0" />
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de datos - Responsive con scroll horizontal -->
+            <div class="overflow-x-auto -mx-2 sm:mx-0" *ngIf="listaSeguros && listaSeguros.length > 0; else sinDatos">
+                <div class="inline-block min-w-full align-middle">
+                    <div class="overflow-hidden">
+                        <table class="table min-w-full">
+                            <thead>
+                                <tr>
+                                    <th class="text-xs sm:text-sm px-2 sm:px-4">N.</th>
+                                    <th class="text-xs sm:text-sm px-2 sm:px-4 min-w-[120px]">Nombre</th>
+                                    <th class="text-xs sm:text-sm px-2 sm:px-4 min-w-[80px]">Código</th>
+                                    <th class="text-xs sm:text-sm px-2 sm:px-4 min-w-[100px] whitespace-nowrap">Suma Aseg.</th>
+                                    <th class="text-xs sm:text-sm px-2 sm:px-4 min-w-[80px]">Prima</th>
+                                    <th class="text-xs sm:text-sm px-2 sm:px-4 min-w-[80px] whitespace-nowrap">Edad Mín</th>
+                                    <th class="text-xs sm:text-sm px-2 sm:px-4 min-w-[80px] whitespace-nowrap">Edad Máx</th>
+                                    <th class="text-xs sm:text-sm px-2 sm:px-4 sticky right-0 bg-base-100">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <ng-container *ngFor="let seguro of listaSeguros; let i = index">
+                                    <tr>
+                                        <td class="text-xs sm:text-sm px-2 sm:px-4">
+                                            {{ (filtros.paginaActual - 1) * filtros.tamanioPagina + (i + 1) }}
+                                        </td>
+                                        <td class="text-xs sm:text-sm px-2 sm:px-4">{{ seguro.nombre }}</td>
+                                        <td class="text-xs sm:text-sm px-2 sm:px-4">{{ seguro.codigo }}</td>
+                                        <td class="text-xs sm:text-sm px-2 sm:px-4">{{ seguro.sumaAsegurada }}</td>
+                                        <td class="text-xs sm:text-sm px-2 sm:px-4">{{ seguro.prima }}</td>
+                                        <td class="text-xs sm:text-sm px-2 sm:px-4">{{ seguro.edadMin }}</td>
+                                        <td class="text-xs sm:text-sm px-2 sm:px-4">{{ seguro.edadMax }}</td>
+                                        <td class="sticky right-0 bg-base-100 px-2 sm:px-4">
+                                            <div class="flex gap-1">
+                                                <button class="btn btn-soft btn-success p-2 min-h-0 h-8 sm:h-10" 
+                                                    (click)="abrirDetalleAsegurado(seguro.idSeguro)" title="Editar">
+                                                    <ng-icon name="heroEye" class="text-sm sm:text-base"></ng-icon>
+                                                </button>
+                                                <button class="btn btn-soft btn-info p-2 min-h-0 h-8 sm:h-10" 
+                                                    (click)="editarSeguro(i)" title="Editar">
+                                                    <ng-icon name="heroPencilSquare" class="text-sm sm:text-base"></ng-icon>
+                                                </button>
+                                                <button class="btn btn-soft btn-error p-2 min-h-0 h-8 sm:h-10" 
+                                                    (click)="eliminarSeguro(seguro)" title="Eliminar">
+                                                    <ng-icon name="heroTrash" class="text-sm sm:text-base"></ng-icon>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </ng-container>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <ng-template #sinDatos>
+                <div class="flex gap-2 items-center w-full justify-center py-8">
+                    <ng-icon name="heroExclamationTriangle"></ng-icon>
+                    <p class="text-sm sm:text-base text-gray-700 italic">No hay datos para visualizar</p>
+                </div>
+            </ng-template>
+        </div>
+    </div>
+    
+    <div class="mt-4">
+        <app-paginador [paginaActual]="filtros.paginaActual" [tamanioPagina]="filtros.tamanioPagina"
+            [registrosTotales]="registrosTotales" [registrosFiltrados]="registrosFiltrados"
+            (paginaCambiada)="onPageChange($event)" [seFiltra]="seFiltra">
+        </app-paginador>
+    </div>
+</div>
+
+<app-registro-seguro [seguroUpdt]="seguroEditar" (submitEvent)="EventoExitoso($event)"></app-registro-seguro>
+<app-vizualizar-asegurados *ngIf="aseguradoSeleccionado" [id]="aseguradoSeleccionado" (cerrar)="cerrarModal()"></app-vizualizar-asegurados>

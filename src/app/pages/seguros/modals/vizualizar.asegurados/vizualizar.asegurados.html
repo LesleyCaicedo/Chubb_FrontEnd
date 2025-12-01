@@ -1,34 +1,37 @@
-<dialog id="modal_ver_seguros" class="modal">
+<dialog id="modal_ver_asegurados" class="modal">
     <div class="p-6 max-w-xl mx-auto modal-box">
         <form method="dialog">
             <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
         </form>
-        <h2 class="text-2xl font-bold mb-4">Seguros Contratados</h2>
+        <h2 class="text-2xl font-bold mb-4"> Asegurados vinculados </h2>
         <div class="overflow-x-auto">
             <table class="table">
                 <thead>
                     <tr>
                         <th>N.</th>
-                        <th>Seguro</th>
-                        <th>Codigo</th>
+                        <th>Cedula</th>
+                        <th>Nombre</th>
+                        <th>Edad</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngIf="listaSeguros.length === 0">
+                    <tr *ngIf="listaAsegurados.length === 0">
                         <td colspan="4" class="text-center py-4 text-gray-500">
-                            No existen Seguros contratados.
+                            No existen asegurados registrados.
                         </td>
                     </tr>
-                    <ng-container *ngIf="listaSeguros.length > 0">
-                        <tr *ngFor="let seguros of listaSeguros; let i = index">
+                    <ng-container *ngIf="listaAsegurados.length > 0">
+                        <tr *ngFor="let seguros of listaAsegurados; let i = index">
                             <td>{{ (filtros.paginaActual - 1) * filtros.tamanioPagina + (i + 1) }}</td>
-                            <td>{{ seguros.nombreSeguro }}</td>
-                            <td>{{ seguros.codigoSeguro }}</td>
+                            <td>{{ seguros.nombreAsegurado }}</td>
+                            <td>{{ seguros.cedula }}</td>
+                            <td>{{ seguros.edad }}</td>
                         </tr>
                     </ng-container>
                 </tbody>
             </table>
         </div>
+
         <app-paginador [paginaActual]="filtros.paginaActual" [tamanioPagina]="filtros.tamanioPagina"
         [registrosTotales]="registrosTotales" [registrosFiltrados]="registrosFiltrados"
         (paginaCambiada)="onPageChange($event)" [seFiltra]="false"></app-paginador>

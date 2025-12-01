@@ -1,0 +1,154 @@
+<dialog id="modal_registro_seguro" class="modal" (keydown)="onKeyDown($event)">
+    <div class="modal-box w-11/12 max-w-4xl p-0">
+        <!-- Header -->
+        <div class="bg-gradient-to-r bg-indigo-950 text-white p-3 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <ng-icon name="heroUser"></ng-icon>
+                <h1>{{ seguroUpdt ? 'Editar' : 'Registrar' }} Seguro </h1>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <form [formGroup]="seguroForm" (ngSubmit)="onSubmit()" class="p-4 sm:p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+
+                <div class="md:col-span-2 sm:md:col-span-1">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        Nombre <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" formControlName="nombre" placeholder="Nombre del seguro"
+                        class="input input-bordered w-full focus:input-primary" />
+                    <div *ngIf="seguroForm.get('nombre')?.invalid && seguroForm.get('nombre')?.touched" 
+                        class="text-red-500 text-xs mt-1">
+                        El nombre es requerido
+                    </div>
+                </div>
+
+                <div class="md:col-span-2 sm:md:col-span-1">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        Código <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" formControlName="codigo" placeholder="Código del seguro" 
+                        class="input input-bordered w-full focus:input-primary" />
+                    <div *ngIf="seguroForm.get('codigo')?.invalid && seguroForm.get('codigo')?.touched" 
+                        class="text-red-500 text-xs mt-1">
+                        El código es requerido
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        Suma Asegurada <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                        <input type="number" inputmode="decimal" formControlName="sumaAsegurada" step="any"
+                            placeholder="0.00" class="input input-bordered w-full focus:input-primary pl-8" />
+                    </div>
+                    <div *ngIf="seguroForm.get('sumaAsegurada')?.invalid && seguroForm.get('sumaAsegurada')?.touched" 
+                        class="text-red-500 text-xs mt-1">
+                        La suma asegurada es requerida
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        Prima (Calculada)
+                    </label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                        <input type="text" [value]="calcularPrima() | number:'1.2-2'" readonly
+                            class="input input-bordered w-full bg-gray-50 cursor-not-allowed pl-8" 
+                            placeholder="0.00" />
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">
+                        <ng-icon name="heroInformationCircle" class="inline"></ng-icon>
+                        Calculada automáticamente (5% de la suma asegurada)
+                    </p>
+                </div>
+
+                <!-- Checkbox para rango de edad -->
+                <div class="md:col-span-2 bg-blue-50 p-4 rounded-lg">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" formControlName="rangoEdad" class="checkbox checkbox-primary" />
+                        <div class="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-600" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            <span class="text-sm font-semibold text-gray-700">Seguro para público específico</span>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Campos de edad (se muestran solo si rangoEdad está seleccionado) -->
+                <div *ngIf="seguroForm.get('rangoEdad')?.value" 
+                    class="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg border-2 border-blue-200">
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Edad Mínima <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <input type="number" formControlName="edadMin" placeholder="Ej: 18"
+                                min="0" max="100" class="input input-bordered w-full focus:input-primary" />
+                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">años</span>
+                        </div>
+                        <div *ngIf="seguroForm.get('edadMin')?.invalid && seguroForm.get('edadMin')?.touched" 
+                            class="text-red-500 text-xs mt-1">
+                            <span *ngIf="seguroForm.get('edadMin')?.errors?.['required']">La edad mínima es requerida</span>
+                            <span *ngIf="seguroForm.get('edadMin')?.errors?.['min']">La edad mínima debe ser mayor a 0</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Edad Máxima <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <input type="number" formControlName="edadMax" placeholder="Ej: 65"
+                                min="0" max="120" class="input input-bordered w-full focus:input-primary" />
+                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">años</span>
+                        </div>
+                        <div *ngIf="seguroForm.get('edadMax')?.invalid && seguroForm.get('edadMax')?.touched" 
+                            class="text-red-500 text-xs mt-1">
+                            <span *ngIf="seguroForm.get('edadMax')?.errors?.['required']">La edad máxima es requerida</span>
+                            <span *ngIf="seguroForm.get('edadMax')?.errors?.['mayorQueMin']">La edad máxima debe ser mayor que la mínima</span>
+                        </div>
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <div class="alert alert-info py-2">
+                            <ng-icon name="heroInformationCircle"></ng-icon>
+                            <span class="text-sm">
+                                Este seguro estará disponible para personas entre 
+                                <strong>{{ seguroForm.get('edadMin')?.value || '___' }}</strong> y 
+                                <strong>{{ seguroForm.get('edadMax')?.value || '___' }}</strong> años
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-6 sm:mt-8 justify-end">
+                <button type="button" (click)="closeModal()" class="btn btn-soft order-2 sm:order-1">
+                    <ng-icon name="heroXMark"></ng-icon>
+                    Cancelar
+                </button>
+                <button type="submit" [disabled]="seguroForm.invalid" 
+                    class="btn btn-primary order-1 sm:order-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    {{ seguroUpdt ? 'Actualizar' : 'Registrar' }} Seguro
+                </button>
+            </div>
+        </form>
+    </div>
+</dialog>

@@ -32,12 +32,13 @@ export class Asegurados implements OnInit {
   registrosFiltrados: number = 0;
   registrosTotales: number = 0;
   urlEliminar: string = '';
-  aseguradoSeleccionado: number = 0;
+  
+  aseguradoSeleccionado: number | null = null;
 
   filtros: FiltradoModel = {
     termino: '',
     paginaActual: 1,
-    tamanioPagina: 10 // Cambiar esto si se cambia el valor por defecto en el select del html
+    tamanioPagina: 10
   };
 
   constructor(private aseguradoService: Asegurado) { }
@@ -47,7 +48,6 @@ export class Asegurados implements OnInit {
   }
 
   ngAfterViewInit(): void {
-    // Aplica tiempo de espera para filtro automatico al escribir sobre input
     fromEvent(this.filtroTexto.nativeElement, 'input')
       .pipe(
         map((event: any) => (event.target as HTMLInputElement).value),
@@ -56,7 +56,7 @@ export class Asegurados implements OnInit {
       ).subscribe((texto: string) => {
         this.filtros.termino = texto;
         this.obtenerAsegurados();
-      })
+      });
   }
 
   obtenerAsegurados() {
@@ -66,12 +66,16 @@ export class Asegurados implements OnInit {
         this.registrosTotales = resp.datos.registrosTotales;
         this.registrosFiltrados = resp.datos.registrosFiltrados;
       }
-    })
+    });
   }
 
-  editarAsegurado(index: number) { }
+  editarAsegurado(index: number) { 
+    console.log('Editar asegurado:', this.listaAsegurados?.[index]);
+  }
 
-  eliminarAsegurado(index: number) { }
+  eliminarAsegurado(index: number) { 
+    console.log('Eliminar asegurado:', this.listaAsegurados?.[index]);
+  }
 
   onChangeViewValue(event: any) {
     this.filtros.tamanioPagina = Number(event.target.value);
@@ -84,9 +88,8 @@ export class Asegurados implements OnInit {
   }
 
   get seFiltra(): boolean {
-    return this.filtros.termino !== ''
+    return this.filtros.termino !== '';
   }
-
 
   getEdad(fechaNacimiento: string | Date): number {
     const fechaNac = new Date(fechaNacimiento);
@@ -95,7 +98,6 @@ export class Asegurados implements OnInit {
     let edad = hoy.getFullYear() - fechaNac.getFullYear();
     const mes = hoy.getMonth() - fechaNac.getMonth();
 
-    // Ajustar si aún no cumple años este año
     if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
       edad--;
     }
@@ -104,9 +106,23 @@ export class Asegurados implements OnInit {
   }
 
   EventoExitoso(evento: any) {
-    if(evento) {
+    if (evento) {
       this.obtenerAsegurados();
     }
   }
 
+  abrirDetalleAsegurado(idAsegurado: number): void {
+    if (this.aseguradoSeleccionado === idAsegurado) {
+      this.aseguradoSeleccionado = null;
+      setTimeout(() => {
+        this.aseguradoSeleccionado = idAsegurado;
+      }, 0);
+    } else {
+      this.aseguradoSeleccionado = idAsegurado;
+    }
+  }
+
+  cerrarModal(): void {
+    this.aseguradoSeleccionado = null;
+  }
 }

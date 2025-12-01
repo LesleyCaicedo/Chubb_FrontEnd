@@ -1,12 +1,13 @@
 <div class="flex flex-col justify-between h-full">
-    <div class="cliente-container flex flex-col gap-2">
-        <div class="cliente-header">
-            <span class="text-3xl font-semibold text-gray-500">Asegurados</span>
+    <div class="cliente-container flex flex-col gap-2 p-2 sm:p-4">
+        <div class="cliente-header mb-2">
+            <span class="text-2xl sm:text-3xl font-semibold text-gray-500">Asegurados</span>
         </div>
         <div class="cliente-body">
             <!-- Config -->
-            <div class="flex flex-col sm:flex-col xl:flex-row xl:justify-between mb-2">
-                <div class="flex items-center">Mostrar&nbsp;
+            <div class="flex flex-col sm:flex-row sm:justify-between gap-3 mb-4">
+                <div class="flex items-center text-sm sm:text-base">
+                    Mostrar&nbsp;
                     <select class="select h-10 focus:outline-0 outline-0 focus-within:outline-0"
                         (change)="onChangeViewValue($event)">
                         <option value="5">5</option>
@@ -16,12 +17,19 @@
                         <option value="100">100</option>
                     </select>&nbsp;elementos
                 </div>
-                <div class="flex gap-2">
-                    <button class="btn btn-soft btn-accent" onclick="modal_carga_masiva.show()"><ng-icon
-                        name="heroUserPlus"></ng-icon> Carga masiva</button>
-                    <button class="btn btn-soft btn-primary" onclick="modal_registro_cliente.show()"><ng-icon
-                        name="heroUserPlus"></ng-icon> Registrar
-                    Asegurado</button>
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <button class="btn btn-soft btn-accent w-full sm:w-auto text-sm sm:text-base" 
+                        onclick="modal_carga_masiva.show()">
+                        <ng-icon name="heroUserPlus"></ng-icon> 
+                        <span class="hidden sm:inline">Carga Masiva</span>
+                        <span class="sm:hidden">Cargar</span>
+                    </button>
+                    <button class="btn btn-soft btn-primary w-full sm:w-auto text-sm sm:text-base" 
+                        onclick="modal_registro_cliente.show()">
+                        <ng-icon name="heroUserPlus"></ng-icon> 
+                        <span class="hidden sm:inline">Registrar Asegurados</span>
+                        <span class="sm:hidden">Registrar</span>
+                    </button>
                 </div>
             </div>
             <!-- Acordion collapse -->
@@ -30,12 +38,12 @@
                 <div class="collapse-title">
                     <div class="flex gap-2 items-center">
                         <ng-icon name="heroFunnel"></ng-icon>
-                        <span class="text-gray-700">Búsqueda Filtrada</span>
+                        <span class="text-sm sm:text-base text-gray-700">Búsqueda Filtrada</span>
                     </div>
                 </div>
                 <div class="collapse-content">
-                    <div class="flex gap-5">
-                        <label class="input">
+                    <div class="flex flex-col sm:flex-row gap-3 sm:gap-5">
+                        <label class="input w-full">
                             <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                                 <g stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" fill="none"
                                     stroke="currentColor">
@@ -61,7 +69,7 @@
                             <th>Telefono</th>
                             <th>Fecha Nacimiento</th>
                             <th>Edad Actual</th>
-                            <th></th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -74,7 +82,7 @@
                                 <td>{{ asegurado.fechaNacimiento }}</td>
                                 <td>{{ getEdad(asegurado.fechaNacimiento) }}</td>
                                 <td class="flex gap-2">
-                                    <button class="btn btn-soft btn-success p-3" (click)="aseguradoSeleccionado = asegurado.idAsegurado"><ng-icon
+                                    <button class="btn btn-soft btn-success p-3" (click)="abrirDetalleAsegurado(asegurado.idAsegurado)"><ng-icon
                                             name="heroEye"></ng-icon></button>
                                     <button class="btn btn-soft btn-info p-3"><ng-icon
                                             name="heroPencilSquare"></ng-icon></button>
@@ -100,8 +108,6 @@
 </div>
 
 <!-- Vistas parciales (Modales) -->
- <app-asegurados-carga-masiva (submitEvent)="EventoExitoso($event)"></app-asegurados-carga-masiva>
- <app-modal-seguros [id]="aseguradoSeleccionado"></app-modal-seguros>
-
-
+<app-asegurados-carga-masiva (submitEvent)="EventoExitoso($event)"></app-asegurados-carga-masiva>
+<app-modal-seguros *ngIf="aseguradoSeleccionado" [id]="aseguradoSeleccionado" (cerrar)="cerrarModal()"></app-modal-seguros>
 

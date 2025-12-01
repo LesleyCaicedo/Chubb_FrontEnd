@@ -1,0 +1,89 @@
+@import url('https://fonts.googleapis.com/css2?family=Caudex:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+span:nth-child(1), span:nth-child(2) {
+    font-family: "Caudex", serif;
+}
+
+/* Animaciones para las alertas */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.animate-fade-out {
+  animation: fadeOut 0.3s ease-in-out;
+}
+
+.toast {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.toast > * {
+  pointer-events: auto;
+}
+
+.toast-top {
+  top: 0;
+}
+
+.toast-end {
+  right: 0;
+}
+
+.alert {
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  min-width: 300px;
+}
+
+.alert svg {
+  flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .toast {
+    left: 1rem;
+    right: 1rem;
+    padding: 0.5rem;
+  }
+  
+  .alert {
+    font-size: 0.875rem;
+    min-width: auto;
+  }
+}
+
+.modal {
+  z-index: 10000;
+}
+
+.modal-open {
+  display: grid;
+}
