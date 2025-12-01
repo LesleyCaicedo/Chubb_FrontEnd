@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
+import { Asegurado as AseguradoService } from '../../services/asegurado';
+import Swal from 'sweetalert2'
 
 @Component({
   selector: 'app-asegurados-carga-masiva',
@@ -11,8 +13,9 @@ import { CommonModule } from '@angular/common';
 export class AseguradosCargaMasiva {
   isDragging = false;
   selectedFile: File | null = null;
-
-  constructor(private http: HttpClient) { }
+  
+  @Output() submitEvent = new EventEmitter<boolean>();
+  constructor(private http: HttpClient, private aseguradoService: AseguradoService) { }
 
   // -----------------------------
   // Drag & Drop
@@ -74,19 +77,29 @@ export class AseguradosCargaMasiva {
     if (!this.selectedFile) return;
 
     const formData = new FormData();
-    formData.append('archivo', this.selectedFile);
+    formData.append('file', this.selectedFile);
 
-    // Ajusta la URL a tu API .NET Core
-    this.http.post('https://tu-api.com/asegurados/carga-masiva', formData)
-      .subscribe({
-        next: (res) => {
-          alert('Archivo subido correctamente');
-          this.selectedFile = null;
-        },
-        error: (err) => {
-          console.error(err);
-          alert('Error al subir el archivo');
-        }
-      });
+    this.aseguradoService.cargaMasiva(formData).subscribe({
+      next: (res) => {
+        Swal.fire({
+          title: "Archivo cargado correctamente",
+          text: "",
+          icon: "success"
+        });
+
+        this.selectedFile = null;
+        this.closeModal();
+        this.submitEvent.next(true);
+      },
+      error: (err) => {
+        alert('Error al subir el archivo');
+        this.closeModal();
+      }
+    });
+  }
+
+  closeModal() {
+    const modal = document.getElementById('modal_carga_masiva') as HTMLDialogElement;
+    modal.close();
   }
 }

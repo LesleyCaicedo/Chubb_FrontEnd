@@ -8,10 +8,11 @@ import { FiltradoModel } from '../../models/filtrado.model';
 import { AseguradoModel } from '../../models/asegurado.model';
 import { Asegurado } from '../../services/asegurado';
 import { debounceTime, distinctUntilChanged, fromEvent, map } from 'rxjs';
+import { ModalSeguros } from './modal-seguros/modal-seguros';
 
 @Component({
   selector: 'app-asegurados',
-  imports: [NgIcon, Paginador, AseguradosCargaMasiva, CommonModule],
+  imports: [NgIcon, Paginador, AseguradosCargaMasiva, CommonModule, ModalSeguros],
   templateUrl: './asegurados.html',
   styleUrl: './asegurados.css',
   providers: [
@@ -31,7 +32,7 @@ export class Asegurados implements OnInit {
   registrosFiltrados: number = 0;
   registrosTotales: number = 0;
   urlEliminar: string = '';
-  aseguradoEditar: any;
+  aseguradoSeleccionado: number = 0;
 
   filtros: FiltradoModel = {
     termino: '',
@@ -100,6 +101,12 @@ export class Asegurados implements OnInit {
     }
 
     return edad;
+  }
+
+  EventoExitoso(evento: any) {
+    if(evento) {
+      this.obtenerAsegurados();
+    }
   }
 
 }

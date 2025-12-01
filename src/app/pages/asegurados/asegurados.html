@@ -74,7 +74,7 @@
                                 <td>{{ asegurado.fechaNacimiento }}</td>
                                 <td>{{ getEdad(asegurado.fechaNacimiento) }}</td>
                                 <td class="flex gap-2">
-                                    <button class="btn btn-soft btn-success p-3" onclick="modal_ver_seguros.show()"><ng-icon
+                                    <button class="btn btn-soft btn-success p-3" (click)="aseguradoSeleccionado = asegurado.idAsegurado"><ng-icon
                                             name="heroEye"></ng-icon></button>
                                     <button class="btn btn-soft btn-info p-3"><ng-icon
                                             name="heroPencilSquare"></ng-icon></button>
@@ -100,9 +100,8 @@
 </div>
 
 <!-- Vistas parciales (Modales) -->
- <app-asegurados-carga-masiva></app-asegurados-carga-masiva>
-<!-- <app-registro-cliente [clienteUpdt]="clienteEditar" (submitEvent)="EventoExitoso($event)"></app-registro-cliente>
-<app-modal-eliminar [urlRemove]="urlEliminar" (submitEvent)="EliminadoExitoso($event)"></app-modal-eliminar> -->
+ <app-asegurados-carga-masiva (submitEvent)="EventoExitoso($event)"></app-asegurados-carga-masiva>
+ <app-modal-seguros [id]="aseguradoSeleccionado"></app-modal-seguros>
 
 
 

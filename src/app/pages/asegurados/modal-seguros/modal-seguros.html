@@ -9,27 +9,23 @@
                 <thead>
                     <tr>
                         <th>N.</th>
-                        <th>Nombre</th>
-                        <th>Cedula</th>
-                        <th>Telefono</th>
-                        <th>Fecha Nacimiento</th>
-                        <th>Edad Actual</th>
-                        <th></th>
+                        <th>Seguro</th>
+                        <th>Codigo</th>
                     </tr>
                 </thead>
                 <tbody>
                     <ng-container *ngFor="let seguros of listaSeguros; let i = index">
                         <tr>
                             <td>{{ (filtros.paginaActual - 1) * filtros.tamanioPagina + (i + 1) }}</td>
-                            <td>{{ seguros.nombre }}</td>
-                            <td>{{ seguros.cedula }}</td>
-                            <td>{{ seguros.telefono }}</td>
-                            <td>{{ seguros.fechaNacimiento }}</td>
-                            <td>{{ seguros }}</td>
+                            <td>{{ seguros.nombreSeguro }}</td>
+                            <td>{{ seguros.codigoSeguro }}</td>
                         </tr>
                     </ng-container>
                 </tbody>
             </table>
         </div>
+        <app-paginador [paginaActual]="filtros.paginaActual" [tamanioPagina]="filtros.tamanioPagina"
+        [registrosTotales]="registrosTotales" [registrosFiltrados]="registrosFiltrados"
+        (paginaCambiada)="onPageChange($event)" [seFiltra]="false"></app-paginador>
     </div>
 </dialog>
