@@ -17,13 +17,30 @@ export class Paginador {
 
   totalPaginas: number = 1;
   paginas: number[] = [];
+  tamanoBloque = 5;  
 
   ngOnChanges(): void {
     const total = this.registrosFiltrados || this.registrosTotales || 0;
     this.totalPaginas = Math.ceil(total / this.tamanioPagina) || 1;
 
-    // Generar array de páginas
-    this.paginas = Array.from({ length: this.totalPaginas }, (_, i) => i + 1);
+    this.generarPaginas();
+  }
+
+  generarPaginas() {
+    // Inicio del bloque de 5
+    const inicioBloque =
+      Math.floor((this.paginaActual - 1) / this.tamanoBloque) * this.tamanoBloque + 1;
+
+    // Fin del bloque de 5
+    const finBloque = Math.min(
+      inicioBloque + this.tamanoBloque - 1,
+      this.totalPaginas
+    );
+
+    this.paginas = [];
+    for (let i = inicioBloque; i <= finBloque; i++) {
+      this.paginas.push(i);
+    }
   }
 
   cambiarPagina(num: number) {

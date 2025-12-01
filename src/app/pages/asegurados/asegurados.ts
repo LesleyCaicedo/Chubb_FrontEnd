@@ -1,9 +1,13 @@
-import { heroExclamationTriangle, heroFunnel, heroPencilSquare, heroTrash, heroUserPlus } from '@ng-icons/heroicons/outline';
+import { heroExclamationTriangle, heroEye, heroFunnel, heroPencilSquare, heroTrash, heroUserPlus } from '@ng-icons/heroicons/outline';
 import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { Paginador } from '../../components/paginador/paginador';
 import { AseguradosCargaMasiva } from '../asegurados-carga-masiva/asegurados-carga-masiva';
 import { CommonModule } from '@angular/common';
+import { FiltradoModel } from '../../models/filtrado.model';
+import { AseguradoModel } from '../../models/asegurado.model';
+import { Asegurado } from '../../services/asegurado';
+import { debounceTime, distinctUntilChanged, fromEvent, map } from 'rxjs';
 
 @Component({
   selector: 'app-asegurados',
@@ -16,31 +20,53 @@ import { CommonModule } from '@angular/common';
       heroUserPlus,
       heroPencilSquare,
       heroTrash,
-      heroExclamationTriangle
+      heroExclamationTriangle,
+      heroEye
     })
   ]
 })
 export class Asegurados implements OnInit {
   @ViewChild('filtroTexto') filtroTexto!: ElementRef;
-  aseguradoEditar: any;
-  urlEliminar: string = '';
-  listaAsegurados: any;
+  listaAsegurados: AseguradoModel[] | null = null;
   registrosFiltrados: number = 0;
   registrosTotales: number = 0;
+  urlEliminar: string = '';
+  aseguradoEditar: any;
 
-  filtros: any = {
+  filtros: FiltradoModel = {
     termino: '',
     paginaActual: 1,
     tamanioPagina: 10 // Cambiar esto si se cambia el valor por defecto en el select del html
   };
 
-  constructor() { }
+  constructor(private aseguradoService: Asegurado) { }
 
   ngOnInit(): void {
     this.obtenerAsegurados();
   }
 
-  obtenerAsegurados() { }
+  ngAfterViewInit(): void {
+    // Aplica tiempo de espera para filtro automatico al escribir sobre input
+    fromEvent(this.filtroTexto.nativeElement, 'input')
+      .pipe(
+        map((event: any) => (event.target as HTMLInputElement).value),
+        debounceTime(1000),
+        distinctUntilChanged()
+      ).subscribe((texto: string) => {
+        this.filtros.termino = texto;
+        this.obtenerAsegurados();
+      })
+  }
+
+  obtenerAsegurados() {
+    this.aseguradoService.obtenerAsegurados(this.filtros).subscribe({
+      next: (resp: any) => {
+        this.listaAsegurados = resp.datos.asegurados;
+        this.registrosTotales = resp.datos.registrosTotales;
+        this.registrosFiltrados = resp.datos.registrosFiltrados;
+      }
+    })
+  }
 
   editarAsegurado(index: number) { }
 
@@ -58,6 +84,22 @@ export class Asegurados implements OnInit {
 
   get seFiltra(): boolean {
     return this.filtros.termino !== ''
+  }
+
+
+  getEdad(fechaNacimiento: string | Date): number {
+    const fechaNac = new Date(fechaNacimiento);
+    const hoy = new Date();
+
+    let edad = hoy.getFullYear() - fechaNac.getFullYear();
+    const mes = hoy.getMonth() - fechaNac.getMonth();
+
+    // Ajustar si aún no cumple años este año
+    if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
+      edad--;
+    }
+
+    return edad;
   }
 
 }

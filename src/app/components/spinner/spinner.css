@@ -1,0 +1,32 @@
+.spinner-svg {
+  animation: rotate 1s linear infinite;
+}
+
+.spinner-svg .path {
+  stroke: #3b82f6;
+  stroke-linecap: round;
+  stroke-dasharray: 90,150;
+  stroke-dashoffset: 0;
+  transform-origin: center;
+  animation: dash 1.2s ease-in-out infinite;
+}
+
+@keyframes rotate {
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes dash {
+  0% { stroke-dasharray: 1,200; stroke-dashoffset: 0; }
+  50% { stroke-dasharray: 90,150; stroke-dashoffset: -35; }
+  100% { stroke-dasharray: 90,150; stroke-dashoffset: -125; }
+}
+
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0,0,0,0.35);
+  z-index: 10000;
+}

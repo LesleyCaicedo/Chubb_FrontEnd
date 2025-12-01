@@ -51,53 +51,41 @@
                 </div>
             </div>
             <!-- Tabla de datos -->
-            <!-- <div class="overflow-x-auto" *ngIf="listaAsegurados && listaAsegurados.length > 0; else sinDatos"> -->
+            <div class="overflow-x-auto" *ngIf="listaAsegurados && listaAsegurados.length > 0; else sinDatos">
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>Nombres</th>
-                            <th>Apellidos</th>
-                            <th>Direccion</th>
-                            <th>Fecha Nacimiento</th>
-                            <th>Correo</th>
-                            <th>Celular</th>
+                            <th>N.</th>
+                            <th>Nombre</th>
+                            <th>Cedula</th>
                             <th>Telefono</th>
+                            <th>Fecha Nacimiento</th>
+                            <th>Edad Actual</th>
                             <th></th>
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- <ng-container *ngFor="let cliente of listaAsegurados; let i = index"> -->
+                        <ng-container *ngFor="let asegurado of listaAsegurados; let i = index">
                             <tr>
-                                <td>Lesley Andrea</td>
-                                <td>Caicedo Guaman</td>
-                                <td>Direccion de prueba</td>
-                                <td>12/03/2001</td>
-                                <td>caicedoles@gmail.com</td>
-                                <td>0928371821</td>
-                                <td>(04) 3399129</td>
-                                <td class="flex gap-1">
+                                <td>{{ (filtros.paginaActual - 1) * filtros.tamanioPagina + (i + 1) }}</td>
+                                <td>{{ asegurado.nombre }}</td>
+                                <td>{{ asegurado.cedula }}</td>
+                                <td>{{ asegurado.telefono }}</td>
+                                <td>{{ asegurado.fechaNacimiento }}</td>
+                                <td>{{ getEdad(asegurado.fechaNacimiento) }}</td>
+                                <td class="flex gap-2">
+                                    <button class="btn btn-soft btn-success p-3" onclick="modal_ver_seguros.show()"><ng-icon
+                                            name="heroEye"></ng-icon></button>
                                     <button class="btn btn-soft btn-info p-3"><ng-icon
                                             name="heroPencilSquare"></ng-icon></button>
                                     <button class="btn btn-soft btn-error p-3"><ng-icon
                                             name="heroTrash"></ng-icon></button>
                                 </td>
                             </tr>
-                        <!-- </ng-container> -->
+                        </ng-container>
                     </tbody>
-                    <!-- <tfoot>
-                        <tr>
-                            <th>Nombres</th>
-                            <th>Apellidos</th>
-                            <th>Direccion</th>
-                            <th>Fecha Nac.</th>
-                            <th>Correo</th>
-                            <th>Celular</th>
-                            <th>Telefono</th>
-                            <th></th>
-                        </tr>
-                    </tfoot> -->
                 </table>
-            <!-- </div> -->
+            </div>
             <ng-template #sinDatos>
                 <div class="flex gap-2 items-center w-full justify-center">
                     <ng-icon name="heroExclamationTriangle"></ng-icon>
@@ -115,3 +103,6 @@
  <app-asegurados-carga-masiva></app-asegurados-carga-masiva>
 <!-- <app-registro-cliente [clienteUpdt]="clienteEditar" (submitEvent)="EventoExitoso($event)"></app-registro-cliente>
 <app-modal-eliminar [urlRemove]="urlEliminar" (submitEvent)="EliminadoExitoso($event)"></app-modal-eliminar> -->
+
+
+

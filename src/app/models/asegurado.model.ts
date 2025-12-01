@@ -3,8 +3,7 @@ export interface AseguradoModel {
   nombre: string;
   cedula: string;
   telefono: string;
-  edad: number;
-  fechaNacimiento: string;
+  fechaNacimiento: Date;
   seguros: number[] | null; 
   eliminado: boolean;
 }

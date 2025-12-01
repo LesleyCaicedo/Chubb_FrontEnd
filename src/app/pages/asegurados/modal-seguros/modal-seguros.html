@@ -1,0 +1,35 @@
+<dialog id="modal_ver_seguros" class="modal">
+    <div class="p-6 max-w-xl mx-auto modal-box">
+        <form method="dialog">
+            <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+        </form>
+        <h2 class="text-2xl font-bold mb-4">Seguros Contratados</h2>
+        <div class="overflow-x-auto">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>N.</th>
+                        <th>Nombre</th>
+                        <th>Cedula</th>
+                        <th>Telefono</th>
+                        <th>Fecha Nacimiento</th>
+                        <th>Edad Actual</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <ng-container *ngFor="let seguros of listaSeguros; let i = index">
+                        <tr>
+                            <td>{{ (filtros.paginaActual - 1) * filtros.tamanioPagina + (i + 1) }}</td>
+                            <td>{{ seguros.nombre }}</td>
+                            <td>{{ seguros.cedula }}</td>
+                            <td>{{ seguros.telefono }}</td>
+                            <td>{{ seguros.fechaNacimiento }}</td>
+                            <td>{{ seguros }}</td>
+                        </tr>
+                    </ng-container>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</dialog>
