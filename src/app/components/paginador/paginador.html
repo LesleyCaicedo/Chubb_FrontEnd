@@ -1,0 +1,30 @@
+<div class="flex justify-between items-center">
+    <span class="text-sm text-gray-700 italic" *ngIf="seFiltra; else noFiltro">
+        Mostrando del {{ registroInicio }} al {{ registroFin }} de {{ registrosFiltrados }} registros filtrados
+        (Total {{ registrosTotales }} registros).
+    </span>
+    <ng-template #noFiltro>
+        <span class="text-sm text-gray-700 italic">
+        Mostrando del {{ registroInicio }} al {{ registroFin }} de {{ registrosTotales }} registros.
+    </span>
+    </ng-template>
+    <div class="join flex justify-center">
+        <!-- Botón anterior -->
+        <button class="join-item btn btn-square" [disabled]="paginaActual === 1"
+            (click)="cambiarPagina(paginaActual - 1)">
+            «
+        </button>
+
+        <!-- Botones dinámicos -->
+        <ng-container *ngFor="let num of paginas">
+            <input class="join-item btn btn-square" type="radio" name="pagination" [attr.aria-label]="num"
+                [checked]="num === paginaActual" (click)="cambiarPagina(num)" />
+        </ng-container>
+
+        <!-- Botón siguiente -->
+        <button class="join-item btn btn-square" [disabled]="paginaActual === totalPaginas"
+            (click)="cambiarPagina(paginaActual + 1)">
+            »
+        </button>
+    </div>
+</div>

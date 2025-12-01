@@ -1,0 +1,78 @@
+<div class="p-6">
+    <h1 class="text-2xl font-bold mb-4">Inicio — Dashboard</h1>
+    <div *ngIf="metrics" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Card simple -->
+        <div class="card shadow-md p-4">
+            <div class="card-body">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-sm">Asegurados</p>
+                        <p class="text-2xl font-semibold">{{ metrics.totalAsegurados | number }}</p>
+                    </div>
+                    <div class="badge badge-info">Actual</div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="card shadow-md p-4">
+            <div class="card-body">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-sm">Pólizas contratadas</p>
+                        <p class="text-2xl font-semibold">{{ metrics.polizasContratadas | number }}</p>
+                    </div>
+                    <div class="badge badge-primary">Mes</div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="card shadow-md p-4">
+            <div class="card-body">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-sm">Primas totales</p>
+                        <p class="text-2xl font-semibold">{{ metrics.primasTotales | currency:'USD':'symbol':'1.0-0' }}
+                        </p>
+                    </div>
+                    <div class="badge badge-success">$</div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="card shadow-md p-4">
+            <div class="card-body">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-sm">Siniestros reportados</p>
+                        <p class="text-2xl font-semibold">{{ metrics.siniestrosReporte }}</p>
+                    </div>
+                    <div class="text-sm">
+                        <span class="text-xs">Crec.</span>
+                        <p class="text-lg font-medium">{{ metrics.crecimientoMensualPct }}%</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+
+    <!-- Sección adicional: lista rápida -->
+    <div *ngIf="metrics" class="mt-6">
+        <div class="card p-4">
+            <div class="card-body">
+                <h2 class="font-semibold mb-2">Resumen rápido</h2>
+                <ul class="list-disc pl-6">
+                    <li>Total asegurados: {{ metrics.totalAsegurados | number }}</li>
+                    <li>Pólizas contratadas: {{ metrics.polizasContratadas | number }}</li>
+                    <li>Primas totales: {{ metrics.primasTotales | currency:'USD' }}</li>
+                    <li>Siniestros reportados: {{ metrics.siniestrosReporte }}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

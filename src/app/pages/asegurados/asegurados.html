@@ -1,0 +1,117 @@
+<div class="flex flex-col justify-between h-full">
+    <div class="cliente-container flex flex-col gap-2">
+        <div class="cliente-header">
+            <span class="text-3xl font-semibold text-gray-500">Asegurados</span>
+        </div>
+        <div class="cliente-body">
+            <!-- Config -->
+            <div class="flex flex-col sm:flex-col xl:flex-row xl:justify-between mb-2">
+                <div class="flex items-center">Mostrar&nbsp;
+                    <select class="select h-10 focus:outline-0 outline-0 focus-within:outline-0"
+                        (change)="onChangeViewValue($event)">
+                        <option value="5">5</option>
+                        <option value="10" selected>10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>&nbsp;elementos
+                </div>
+                <div class="flex gap-2">
+                    <button class="btn btn-soft btn-accent" onclick="modal_carga_masiva.show()"><ng-icon
+                        name="heroUserPlus"></ng-icon> Carga masiva</button>
+                    <button class="btn btn-soft btn-primary" onclick="modal_registro_cliente.show()"><ng-icon
+                        name="heroUserPlus"></ng-icon> Registrar
+                    Asegurado</button>
+                </div>
+            </div>
+            <!-- Acordion collapse -->
+            <div class="bg-base-100 border-base-300 collapse collapse-arrow border mb-5">
+                <input type="checkbox" [checked]="true" class="peer" />
+                <div class="collapse-title">
+                    <div class="flex gap-2 items-center">
+                        <ng-icon name="heroFunnel"></ng-icon>
+                        <span class="text-gray-700">Búsqueda Filtrada</span>
+                    </div>
+                </div>
+                <div class="collapse-content">
+                    <div class="flex gap-5">
+                        <label class="input">
+                            <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <g stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" fill="none"
+                                    stroke="currentColor">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <path d="m21 21-4.3-4.3"></path>
+                                </g>
+                            </svg>
+                            <input #filtroTexto type="search" required placeholder="Buscar..."
+                                [disabled]="(!listaAsegurados || listaAsegurados.length <= 0) && registrosTotales <= 0" />
+                        </label>
+                        <!-- <input type="date" class="input" [disabled]="(!listaAsegurados || listaAsegurados.length <= 0) && registrosTotales <= 0" /> -->
+                    </div>
+                </div>
+            </div>
+            <!-- Tabla de datos -->
+            <!-- <div class="overflow-x-auto" *ngIf="listaAsegurados && listaAsegurados.length > 0; else sinDatos"> -->
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Nombres</th>
+                            <th>Apellidos</th>
+                            <th>Direccion</th>
+                            <th>Fecha Nacimiento</th>
+                            <th>Correo</th>
+                            <th>Celular</th>
+                            <th>Telefono</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- <ng-container *ngFor="let cliente of listaAsegurados; let i = index"> -->
+                            <tr>
+                                <td>Lesley Andrea</td>
+                                <td>Caicedo Guaman</td>
+                                <td>Direccion de prueba</td>
+                                <td>12/03/2001</td>
+                                <td>caicedoles@gmail.com</td>
+                                <td>0928371821</td>
+                                <td>(04) 3399129</td>
+                                <td class="flex gap-1">
+                                    <button class="btn btn-soft btn-info p-3"><ng-icon
+                                            name="heroPencilSquare"></ng-icon></button>
+                                    <button class="btn btn-soft btn-error p-3"><ng-icon
+                                            name="heroTrash"></ng-icon></button>
+                                </td>
+                            </tr>
+                        <!-- </ng-container> -->
+                    </tbody>
+                    <!-- <tfoot>
+                        <tr>
+                            <th>Nombres</th>
+                            <th>Apellidos</th>
+                            <th>Direccion</th>
+                            <th>Fecha Nac.</th>
+                            <th>Correo</th>
+                            <th>Celular</th>
+                            <th>Telefono</th>
+                            <th></th>
+                        </tr>
+                    </tfoot> -->
+                </table>
+            <!-- </div> -->
+            <ng-template #sinDatos>
+                <div class="flex gap-2 items-center w-full justify-center">
+                    <ng-icon name="heroExclamationTriangle"></ng-icon>
+                    <p class="text-gray-700 italic">No hay datos para visualizar</p>
+                </div>
+            </ng-template>
+        </div>
+    </div>
+    <app-paginador [paginaActual]="filtros.paginaActual" [tamanioPagina]="filtros.tamanioPagina"
+        [registrosTotales]="registrosTotales" [registrosFiltrados]="registrosFiltrados"
+        (paginaCambiada)="onPageChange($event)" [seFiltra]="seFiltra"></app-paginador>
+</div>
+
+<!-- Vistas parciales (Modales) -->
+ <app-asegurados-carga-masiva></app-asegurados-carga-masiva>
+<!-- <app-registro-cliente [clienteUpdt]="clienteEditar" (submitEvent)="EventoExitoso($event)"></app-registro-cliente>
+<app-modal-eliminar [urlRemove]="urlEliminar" (submitEvent)="EliminadoExitoso($event)"></app-modal-eliminar> -->
