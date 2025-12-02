@@ -30,7 +30,7 @@ import { RegistroAsegurado } from './modals/registro.asegurado/registro.asegurad
 })
 export class Asegurados implements OnInit {
   @ViewChild('filtroTexto') filtroTexto!: ElementRef;
-    @ViewChild(RegistroAsegurado) registroComp!: RegistroAsegurado;
+  @ViewChild(RegistroAsegurado) registroComp!: RegistroAsegurado;
   aseguradoEditar: AseguradoModel | null = null;
   listaAsegurados: AseguradoModel[] = [];
   registrosFiltrados: number = 0;
@@ -44,7 +44,7 @@ export class Asegurados implements OnInit {
     tamanioPagina: 10
   };
 
-  constructor(private aseguradoService: Asegurado, private alertService: AlertService ) { }
+  constructor(private aseguradoService: Asegurado, private alertService: AlertService) { }
 
   ngOnInit(): void {
     this.obtenerAsegurados();
@@ -76,11 +76,11 @@ export class Asegurados implements OnInit {
     });
   }
 
-  editarAsegurado(index: number) { 
+  editarAsegurado(index: number) {
     this.aseguradoEditar = { ...this.listaAsegurados[index] };
   }
 
-    async eliminarAsegurado(asegurado: AseguradoModel) {
+  async eliminarAsegurado(asegurado: AseguradoModel) {
     const confirmado = await this.alertService.mostrarConfirmacion(
       '¿Estás seguro?',
       `¿Deseas eliminar "${asegurado.nombre}"?`,
@@ -148,13 +148,11 @@ export class Asegurados implements OnInit {
     }
   }
 
-    abrirModalRegistroNuevo() {
-    // Llama al método público del hijo
+  abrirModalRegistroNuevo() {
     this.registroComp?.open();
   }
 
   abrirModalEditar(asegurado: AseguradoModel) {
-    // pasas el asegurado para que el hijo haga el patch y muestre modal
     this.registroComp?.open(asegurado);
   }
 

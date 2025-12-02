@@ -33,4 +33,8 @@ export class Seguro {
   EliminarSeguro(id: number): Observable<ResponseModel> {
     return this.http.delete<ResponseModel>(`${this.baseUrl}/EliminarSeguro/${id}`);
   }
+
+  ConsultaGeneral(filtros: FiltradoModel, cedula?: string, codigo?: string): Observable<ResponseModel> {
+    return this.http.post<ResponseModel>(`${this.baseUrl}/ConsultaGeneral?cedula=${cedula || ''}&codigo=${codigo || ''}`, filtros);
+  }
 }

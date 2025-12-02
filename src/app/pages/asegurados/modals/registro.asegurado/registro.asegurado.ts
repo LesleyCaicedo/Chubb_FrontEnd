@@ -4,10 +4,10 @@ import { SeguroModel } from '../../../../models/seguro.model';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Asegurado } from '../../../../services/asegurado';
 import { Seguro } from '../../../../services/seguro';
-import { FiltradoModel } from '../../../../models/filtrado.model';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { heroInformationCircle, heroMagnifyingGlass, heroUser, heroXMark } from '@ng-icons/heroicons/outline';
 import { Shareds } from '../../../../commons/utils/shared.util';
+import { AlertService } from '../../../../services/alert';
 
 @Component({
   selector: 'app-registro-asegurado',
@@ -39,17 +39,18 @@ export class RegistroAsegurado {
   constructor(
     private fb: FormBuilder,
     private aseguradoService: Asegurado,
-    private seguroService: Seguro
-  ) {}
+    private seguroService: Seguro,
+    private alertService: AlertService
+  ) { }
 
   ngOnInit(): void {
     this.setEmptyForm();
     this.setupEdadCalculation();
-  this.aseguradoForm.valueChanges.subscribe(val => {
-    console.log('Valores actuales del formulario:', val);
-    console.log('Estado del formulario:', this.aseguradoForm.status);
-  });
-}
+    this.aseguradoForm.valueChanges.subscribe(val => {
+      console.log('Valores actuales del formulario:', val);
+      console.log('Estado del formulario:', this.aseguradoForm.status);
+    });
+  }
 
 
   ngOnChanges(): void {
@@ -70,7 +71,6 @@ export class RegistroAsegurado {
     }
   }
 
-  // FORM BASE
   setEmptyForm() {
     this.aseguradoForm = this.fb.group({
       nombre: ['', [Validators.required, Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)]],
@@ -82,7 +82,6 @@ export class RegistroAsegurado {
     });
   }
 
-  // CALCULAR EDAD
   setupEdadCalculation() {
     const fechaNacControl = this.aseguradoForm.get('fechaNacimiento');
 
@@ -101,28 +100,25 @@ export class RegistroAsegurado {
     });
   }
 
-calcularEdad(fechaNacimiento: string) {
-  const hoy = new Date();
-  const fechaNac = new Date(fechaNacimiento);
+  calcularEdad(fechaNacimiento: string) {
+    const hoy = new Date();
+    const fechaNac = new Date(fechaNacimiento);
 
-  let edad = hoy.getFullYear() - fechaNac.getFullYear();
-  const mes = hoy.getMonth() - fechaNac.getMonth();
+    let edad = hoy.getFullYear() - fechaNac.getFullYear();
+    const mes = hoy.getMonth() - fechaNac.getMonth();
 
-  if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
-    edad--;
+    if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
+      edad--;
+    }
+
+    this.aseguradoForm.get('edad')?.setValue(edad);
+    this.aseguradoForm.get('edad')?.updateValueAndValidity();
   }
 
-  this.aseguradoForm.get('edad')?.setValue(edad);
-  this.aseguradoForm.get('edad')?.updateValueAndValidity();
-}
+  onFechaNacimientoChange(event: any) {
+    this.calcularEdad(event.target.value);
+  }
 
-
-onFechaNacimientoChange(event: any) {
-  this.calcularEdad(event.target.value);
-}
-
-
-  // SEGUROS
   cargarSeguros() {
     this.cargandoSeguros = true;
 
@@ -143,27 +139,23 @@ onFechaNacimientoChange(event: any) {
       }
     });
   }
+  toggleSeguro(idSeguro: number) {
+    const seguros: number[] = this.aseguradoForm.get('seguros')?.value || [];
+    const index = seguros.indexOf(idSeguro);
 
-toggleSeguro(idSeguro: number) {
-  const seguros: number[] = this.aseguradoForm.get('seguros')?.value || [];
-  const index = seguros.indexOf(idSeguro);
+    if (index > -1) {
+      seguros.splice(index, 1);
+    } else {
+      seguros.push(idSeguro);
+    }
 
-  if (index > -1) {
-    seguros.splice(index, 1);
-  } else {
-    seguros.push(idSeguro);
+    this.aseguradoForm.get('seguros')?.setValue(seguros);
+    this.aseguradoForm.get('seguros')?.markAsTouched(); 
   }
-
-  this.aseguradoForm.get('seguros')?.setValue(seguros);
-  this.aseguradoForm.get('seguros')?.markAsTouched(); // dispara validación
-}
-
-
   isSeguroSeleccionado(id: number) {
     return this.segurosSeleccionados.includes(id);
   }
 
-  // MODAL
   open(initialAsegurado?: AseguradoModel) {
     if (initialAsegurado) {
       this.aseguradoUpdt = initialAsegurado;
@@ -184,8 +176,6 @@ toggleSeguro(idSeguro: number) {
     this.segurosSeleccionados = [];
     this.setEmptyForm();
   }
-
-  // SUBMIT
   onSubmit() {
     if (!this.aseguradoForm.valid) {
       Object.keys(this.aseguradoForm.controls).forEach(k => {
@@ -193,56 +183,61 @@ toggleSeguro(idSeguro: number) {
       });
       return;
     }
-  console.log('onSubmit ejecutado', this.aseguradoForm.value);
+    console.log('onSubmit ejecutado', this.aseguradoForm.value);
 
     if (this.aseguradoUpdt) this.ActualizarAsegurado();
     else this.RegistrarAsegurado();
   }
 
-RegistrarAsegurado() {
-  const form = this.aseguradoForm.getRawValue();
+  RegistrarAsegurado() {
+    const form = this.aseguradoForm.getRawValue();
 
-  const asegurado: AseguradoModel = {
-    idAsegurado: this.aseguradoUpdt?.idAsegurado ?? 0,
-    nombre: form.nombre,
-    cedula: form.cedula,
-    telefono: form.telefono,
-    fechaNacimiento: form.fechaNacimiento,
-    eliminado: form.eliminado,
-    seguros: form.seguros // <--- usa el FormControl directamente
-  };
+    const asegurado: AseguradoModel = {
+      idAsegurado: this.aseguradoUpdt?.idAsegurado ?? 0,
+      nombre: form.nombre,
+      cedula: form.cedula,
+      telefono: form.telefono,
+      fechaNacimiento: form.fechaNacimiento,
+      eliminado: form.eliminado,
+      seguros: form.seguros
+    };
 
-  this.aseguradoService.RegistrarAsegurado(asegurado).subscribe({
-    next: () => {
-      this.closeModal();
-      this.submitEvent.emit(true);
-    },
-    error: () => this.submitEvent.emit(false)
-  });
-}
+    this.aseguradoService.RegistrarAsegurado(asegurado).subscribe({
+      next: () => {
+        this.closeModal();
+        this.submitEvent.emit(true);
+      },
+      error: (error) => {
+        console.error('Error al actualizar seguro:', error);
+        const mensaje = error?.error?.mensaje || 'No se pudo registrar al asegurado';
+        this.submitEvent.emit(false);
+        this.alertService.error('Error', mensaje);
+      }
+    });
+  }
 
 
-ActualizarAsegurado() {
-  const form = this.aseguradoForm.getRawValue();
+  ActualizarAsegurado() {
+    const form = this.aseguradoForm.getRawValue();
 
-  const asegurado: AseguradoModel = {
-    idAsegurado: this.aseguradoUpdt!.idAsegurado,
-    nombre: form.nombre,
-    cedula: form.cedula,
-    telefono: form.telefono,
-    fechaNacimiento: form.fechaNacimiento,
-    eliminado: form.eliminado,
-    seguros: form.seguros // <--- FormControl directo
-  };
+    const asegurado: AseguradoModel = {
+      idAsegurado: this.aseguradoUpdt!.idAsegurado,
+      nombre: form.nombre,
+      cedula: form.cedula,
+      telefono: form.telefono,
+      fechaNacimiento: form.fechaNacimiento,
+      eliminado: form.eliminado,
+      seguros: form.seguros 
+    };
 
-  this.aseguradoService.ActualizarAsegurado(asegurado).subscribe({
-    next: () => {
-      this.closeModal();
-      this.submitEvent.emit(true);
-    },
-    error: () => this.submitEvent.emit(false)
-  });
-}
+    this.aseguradoService.ActualizarAsegurado(asegurado).subscribe({
+      next: () => {
+        this.closeModal();
+        this.submitEvent.emit(true);
+      },
+      error: () => this.submitEvent.emit(false)
+    });
+  }
 
 
   onlyNumbers(event: KeyboardEvent) {
@@ -259,5 +254,5 @@ ActualizarAsegurado() {
     }
   }
 
-  onKeyDown(event: KeyboardEvent) {}
+  onKeyDown(event: KeyboardEvent) { }
 }

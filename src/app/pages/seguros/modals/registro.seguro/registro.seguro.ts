@@ -5,6 +5,7 @@ import { Shareds } from '../../../../commons/utils/shared.util';
 import { SeguroModel } from '../../../../models/seguro.model';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Seguro } from '../../../../services/seguro';
+import { AlertService } from '../../../../services/alert';
 
 @Component({
   selector: 'app-registro-seguro',
@@ -24,7 +25,7 @@ export class RegistroSeguro implements OnInit, OnChanges {
   seguroForm: FormGroup<any> = new FormBuilder().group({});
   disable: boolean = false;
 
-  constructor(private fb: FormBuilder, private seguroService: Seguro) {}
+  constructor(private fb: FormBuilder, private seguroService: Seguro, private alertService: AlertService) {}
 
   ngOnInit(): void {
     this.setEmptyForm();
@@ -57,7 +58,7 @@ export class RegistroSeguro implements OnInit, OnChanges {
       nombre: ['', Validators.required],
       codigo: ['', Validators.required],
       sumaAsegurada: ['', [Validators.required, Validators.min(0)]],
-      prima: [{ value: '', disabled: true }], // Campo deshabilitado - se calcula automáticamente
+      prima: [{ value: '', disabled: true }],
       rangoEdad: [false],
       edadMin: [{ value: '', disabled: true }],
       edadMax: [{ value: '', disabled: true }]
@@ -188,7 +189,9 @@ export class RegistroSeguro implements OnInit, OnChanges {
       },
       error: (error) => {
         console.error('Error al registrar seguro:', error);
+        const mensaje = error?.error?.mensaje || 'No se pudo registrar el seguro';
         this.submitEvent.emit(false);
+        this.alertService.error('Error', mensaje);
       }
     });
   }
@@ -212,8 +215,10 @@ export class RegistroSeguro implements OnInit, OnChanges {
         this.submitEvent.emit(true);
       },
       error: (error) => {
-        console.error('Error al registrar seguro:', error);
+        console.error('Error al actualizar seguro:', error);
+        const mensaje = error?.error?.mensaje || 'No se pudo actualizar el seguro';
         this.submitEvent.emit(false);
+        this.alertService.error('Error', mensaje);
       }
     });
   }
@@ -225,6 +230,6 @@ export class RegistroSeguro implements OnInit, OnChanges {
     modal.close();
 
     this.setEmptyForm();
-    this.setupFormListeners(); // Reconfigurar los listeners después de resetear el form
+    this.setupFormListeners(); 
   }
 }

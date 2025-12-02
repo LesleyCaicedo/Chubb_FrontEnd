@@ -1,77 +1,172 @@
-<div class="p-6">
-    <h1 class="text-2xl font-bold mb-4">Inicio — Dashboard</h1>
-    <div *ngIf="metrics" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- Card simple -->
-        <div class="card shadow-md p-4">
-            <div class="card-body">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <p class="text-sm">Asegurados</p>
-                        <p class="text-2xl font-semibold">{{ metrics.totalAsegurados | number }}</p>
-                    </div>
-                    <div class="badge badge-info">Actual</div>
-                </div>
-            </div>
+<div class="flex flex-col justify-between h-full">
+    <div class="consulta-container flex flex-col gap-2 p-2 sm:p-4">
+        <div class="consulta-header mb-2">
+            <span class="text-2xl sm:text-3xl font-semibold text-gray-500">Consulta General</span>
         </div>
-
-
-        <div class="card shadow-md p-4">
-            <div class="card-body">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <p class="text-sm">Pólizas contratadas</p>
-                        <p class="text-2xl font-semibold">{{ metrics.polizasContratadas | number }}</p>
-                    </div>
-                    <div class="badge badge-primary">Mes</div>
-                </div>
-            </div>
-        </div>
-
-
-        <div class="card shadow-md p-4">
-            <div class="card-body">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <p class="text-sm">Primas totales</p>
-                        <p class="text-2xl font-semibold">{{ metrics.primasTotales | currency:'USD':'symbol':'1.0-0' }}
-                        </p>
-                    </div>
-                    <div class="badge badge-success">$</div>
-                </div>
-            </div>
-        </div>
-
-
-        <div class="card shadow-md p-4">
-            <div class="card-body">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <p class="text-sm">Siniestros reportados</p>
-                        <p class="text-2xl font-semibold">{{ metrics.siniestrosReporte }}</p>
-                    </div>
-                    <div class="text-sm">
-                        <span class="text-xs">Crec.</span>
-                        <p class="text-lg font-medium">{{ metrics.crecimientoMensualPct }}%</p>
+        <div class="consulta-body">
+            <!-- Filtros de Búsqueda -->
+            <div class="bg-base-100 border-base-300 collapse collapse-arrow border mb-5">
+                <input type="checkbox" [checked]="true" class="peer" />
+                <div class="collapse-title">
+                    <div class="flex gap-2 items-center">
+                        <ng-icon name="heroMagnifyingGlass"></ng-icon>
+                        <span class="text-sm sm:text-base text-gray-700">Búsqueda por Cédula o Código de Seguro</span>
                     </div>
                 </div>
+                <div class="collapse-content">
+                    <div class="flex flex-col gap-3">
+                        <!-- Radio buttons para seleccionar tipo de búsqueda -->
+                        <div class="flex flex-col sm:flex-row gap-4 mb-3">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="tipoBusqueda" value="cedula" 
+                                    [(ngModel)]="tipoBusqueda" (change)="limpiarResultados()" 
+                                    class="radio radio-primary" />
+                                <span class="text-sm">Buscar por Cédula</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="tipoBusqueda" value="codigo" 
+                                    [(ngModel)]="tipoBusqueda" (change)="limpiarResultados()" 
+                                    class="radio radio-primary" />
+                                <span class="text-sm">Buscar por Código de Seguro</span>
+                            </label>
+                        </div>
+
+                        <!-- Input de búsqueda -->
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <label class="input w-full flex items-center gap-2">
+                                <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                    <g stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" fill="none"
+                                        stroke="currentColor">
+                                        <circle cx="11" cy="11" r="8"></circle>
+                                        <path d="m21 21-4.3-4.3"></path>
+                                    </g>
+                                </svg>
+                                <input #inputBusqueda type="text" 
+                                    [placeholder]="tipoBusqueda === 'cedula' ? 'Ingrese cédula...' : 'Ingrese código de seguro...'"
+                                    [(ngModel)]="terminoBusqueda"
+                                    (keyup.enter)="buscar()" />
+                            </label>
+                            <button class="btn btn-primary w-full sm:w-auto" (click)="buscar()"
+                                [disabled]="!terminoBusqueda || terminoBusqueda.trim() === '' || buscando">
+                                <ng-icon name="heroMagnifyingGlass"></ng-icon>
+                                <span *ngIf="!buscando">Buscar</span>
+                                <span *ngIf="buscando" class="loading loading-spinner loading-sm"></span>
+                            </button>
+                            <button class="btn btn-ghost w-full sm:w-auto" (click)="limpiarBusqueda()"
+                                *ngIf="resultados && resultados.length > 0">
+                                <ng-icon name="heroXMark"></ng-icon>
+                                Limpiar
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
 
+            <!-- Tabla de resultados - Búsqueda por Cédula -->
+            <div class="overflow-x-auto -mx-2 sm:mx-0" 
+                *ngIf="resultados && resultados.length > 0 && tipoBusqueda === 'cedula'">
+                <div class="inline-block min-w-full align-middle">
+                    <div class="overflow-hidden">
+                        <!-- Información del Asegurado -->
+                        <div class="bg-blue-50 p-4 rounded-lg mb-4">
+                            <h3 class="text-lg font-semibold text-gray-700 mb-2">Información del Asegurado</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
+                                <div><span class="font-medium">Cédula:</span> {{ resultados[0].cedula }}</div>
+                                <div><span class="font-medium">Nombre:</span> {{ resultados[0].nombreAsegurado }}</div>
+                                <div><span class="font-medium">Teléfono:</span> {{ resultados[0].telefono || 'N/A' }}</div>
+                                <div><span class="font-medium">Fecha Nacimiento:</span> {{ resultados[0].fechaNacimiento | date: 'dd/MM/yyyy' }}</div>
+                            </div>
+                        </div>
 
-    </div>
+                        <!-- Tabla de Seguros -->
+                        <h4 class="text-md font-semibold text-gray-700 mb-2">Seguros Asociados ({{ resultados.length }})</h4>
+                        <table class="table min-w-full">
+                            <thead>
+                                <tr>
+                                    <th class="text-xs sm:text-sm px-2 sm:px-4">N.</th>
+                                    <th class="text-xs sm:text-sm px-2 sm:px-4 min-w-[120px]">Nombre Seguro</th>
+                                    <th class="text-xs sm:text-sm px-2 sm:px-4 min-w-[80px]">Código</th>
+                                    <th class="text-xs sm:text-sm px-2 sm:px-4 min-w-[100px] whitespace-nowrap">Suma Aseg.</th>
+                                    <th class="text-xs sm:text-sm px-2 sm:px-4 min-w-[80px]">Prima</th>
+                                    <th class="text-xs sm:text-sm px-2 sm:px-4 min-w-[80px] whitespace-nowrap">Edad Mín</th>
+                                    <th class="text-xs sm:text-sm px-2 sm:px-4 min-w-[80px] whitespace-nowrap">Edad Máx</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of resultados; let i = index">
+                                    <td class="text-xs sm:text-sm px-2 sm:px-4">{{ i + 1 }}</td>
+                                    <td class="text-xs sm:text-sm px-2 sm:px-4">{{ item.nombreSeguro }}</td>
+                                    <td class="text-xs sm:text-sm px-2 sm:px-4">{{ item.codigoSeguro }}</td>
+                                    <td class="text-xs sm:text-sm px-2 sm:px-4">{{ item.sumaAsegurada | currency:'USD':'symbol':'1.2-2' }}</td>
+                                    <td class="text-xs sm:text-sm px-2 sm:px-4">{{ item.prima | currency:'USD':'symbol':'1.2-2' }}</td>
+                                    <td class="text-xs sm:text-sm px-2 sm:px-4">{{ item.edadMin }}</td>
+                                    <td class="text-xs sm:text-sm px-2 sm:px-4">{{ item.edadMax }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 
+            <!-- Tabla de resultados - Búsqueda por Código de Seguro -->
+            <div class="overflow-x-auto -mx-2 sm:mx-0" 
+                *ngIf="resultados && resultados.length > 0 && tipoBusqueda === 'codigo'">
+                <div class="inline-block min-w-full align-middle">
+                    <div class="overflow-hidden">
+                        <!-- Información del Seguro -->
+                        <div class="bg-green-50 p-4 rounded-lg mb-4">
+                            <h3 class="text-lg font-semibold text-gray-700 mb-2">Información del Seguro</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
+                                <div><span class="font-medium">Código:</span> {{ resultados[0].codigoSeguro }}</div>
+                                <div><span class="font-medium">Nombre:</span> {{ resultados[0].nombreSeguro }}</div>
+                                <div><span class="font-medium">Suma Asegurada:</span> {{ resultados[0].sumaAsegurada | currency:'USD':'symbol':'1.2-2' }}</div>
+                                <div><span class="font-medium">Prima:</span> {{ resultados[0].prima | currency:'USD':'symbol':'1.2-2' }}</div>
+                                <div><span class="font-medium">Edad Mín:</span> {{ resultados[0].edadMin }}</div>
+                                <div><span class="font-medium">Edad Máx:</span> {{ resultados[0].edadMax }}</div>
+                            </div>
+                        </div>
 
-    <!-- Sección adicional: lista rápida -->
-    <div *ngIf="metrics" class="mt-6">
-        <div class="card p-4">
-            <div class="card-body">
-                <h2 class="font-semibold mb-2">Resumen rápido</h2>
-                <ul class="list-disc pl-6">
-                    <li>Total asegurados: {{ metrics.totalAsegurados | number }}</li>
-                    <li>Pólizas contratadas: {{ metrics.polizasContratadas | number }}</li>
-                    <li>Primas totales: {{ metrics.primasTotales | currency:'USD' }}</li>
-                    <li>Siniestros reportados: {{ metrics.siniestrosReporte }}</li>
-                </ul>
+                        <!-- Tabla de Asegurados -->
+                        <h4 class="text-md font-semibold text-gray-700 mb-2">Asegurados Asociados ({{ resultados.length }})</h4>
+                        <table class="table min-w-full">
+                            <thead>
+                                <tr>
+                                    <th class="text-xs sm:text-sm px-2 sm:px-4">N.</th>
+                                    <th class="text-xs sm:text-sm px-2 sm:px-4 min-w-[100px]">Cédula</th>
+                                    <th class="text-xs sm:text-sm px-2 sm:px-4 min-w-[150px]">Nombre</th>
+                                    <th class="text-xs sm:text-sm px-2 sm:px-4 min-w-[100px]">Teléfono</th>
+                                    <th class="text-xs sm:text-sm px-2 sm:px-4 min-w-[120px] whitespace-nowrap">Fecha Nacimiento</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of resultados; let i = index">
+                                    <td class="text-xs sm:text-sm px-2 sm:px-4">{{ i + 1 }}</td>
+                                    <td class="text-xs sm:text-sm px-2 sm:px-4">{{ item.cedula }}</td>
+                                    <td class="text-xs sm:text-sm px-2 sm:px-4">{{ item.nombreAsegurado }}</td>
+                                    <td class="text-xs sm:text-sm px-2 sm:px-4">{{ item.telefono || 'N/A' }}</td>
+                                    <td class="text-xs sm:text-sm px-2 sm:px-4">{{ item.fechaNacimiento | date: 'dd/MM/yyyy' }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sin datos o sin búsqueda -->
+            <div class="flex gap-2 items-center w-full justify-center py-8" 
+                *ngIf="!buscando && (!resultados || resultados.length === 0) && busquedaRealizada">
+                <ng-icon name="heroExclamationTriangle"></ng-icon>
+                <p class="text-sm sm:text-base text-gray-700 italic">
+                    No se encontraron resultados para la búsqueda
+                </p>
+            </div>
+
+            <div class="flex gap-2 items-center w-full justify-center py-8" 
+                *ngIf="!buscando && !busquedaRealizada">
+                <ng-icon name="heroMagnifyingGlass"></ng-icon>
+                <p class="text-sm sm:text-base text-gray-700 italic">
+                    Ingrese un criterio de búsqueda para comenzar
+                </p>
             </div>
         </div>
     </div>

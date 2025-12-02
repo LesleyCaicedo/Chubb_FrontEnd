@@ -1,5 +1,3 @@
-// src/app/services/alert.service.ts
-
 import { Injectable } from '@angular/core';
 
 @Injectable({
@@ -9,9 +7,6 @@ export class AlertService {
 
   constructor() { }
 
-  /**
-   * Muestra una alerta toast usando DaisyUI
-   */
   mostrarAlerta(tipo: 'success' | 'error' | 'warning' | 'info', titulo: string, mensaje?: string): void {
     const alertContainer = document.createElement('div');
     alertContainer.className = 'toast toast-top toast-end z-50';
@@ -49,17 +44,11 @@ export class AlertService {
     `;
 
     document.body.appendChild(alertContainer);
-
-    // Auto-remover después de 3 segundos
     setTimeout(() => {
       alertContainer.classList.add('animate-fade-out');
       setTimeout(() => alertContainer.remove(), 300);
     }, 3000);
   }
-
-  /**
-   * Muestra un diálogo de confirmación
-   */
   mostrarConfirmacion(
     titulo: string,
     mensaje: string,
@@ -118,9 +107,6 @@ export class AlertService {
     });
   }
 
-  /**
-   * Atajos para tipos específicos de alertas
-   */
   success(titulo: string, mensaje?: string): void {
     this.mostrarAlerta('success', titulo, mensaje);
   }
