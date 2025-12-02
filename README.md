@@ -1,59 +1,76 @@
-# ChubbFrontEnd
+# 📱 Proyecto Angular
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.5.
+## 📋 Requisitos Previos
 
-## Development server
+Antes de comenzar, asegúrate de tener instalado lo siguiente en tu sistema:
 
-To start a local development server, run:
+- **Node.js** (versión 18 o superior recomendada)
+  - Puedes descargarlo desde: https://nodejs.org/
+  - Para verificar si ya lo tienes instalado, ejecuta: `node --version`
+- **npm** (se instala automáticamente con Node.js)
+  - Para verificar la versión: `npm --version`
+- **Angular CLI** (opcional pero recomendado)
+  - Para instalarlo globalmente: `npm install -g @angular/cli`
+- **Visual Studio Code** (recomendado)
+  - Descárgalo desde: https://code.visualstudio.com/
+
+## 🚀 Instalación y Configuración
+
+Sigue estos pasos para configurar y ejecutar el proyecto en tu máquina local:
+
+### 1️⃣ Clonar el Repositorio
+
+```bash
+git clone [URL_DEL_REPOSITORIO]
+cd [NOMBRE_DEL_PROYECTO]
+```
+
+### 2️⃣ Abrir con Visual Studio Code
+
+```bash
+code .
+```
+
+O simplemente abre Visual Studio Code y selecciona **File → Open Folder** y elige la carpeta del proyecto.
+
+### 3️⃣ Abrir la Terminal
+
+Dentro de Visual Studio Code:
+- Presiona **Ctrl + `** (acento grave) o
+- Ve a **Terminal → New Terminal** en el menú superior
+
+### 4️⃣ Instalar Dependencias
+
+Ejecuta el siguiente comando en la terminal:
+
+```bash
+npm install --force
+```
+
+> **Nota:** El flag `--force` se utiliza para resolver posibles conflictos de dependencias. Espera a que se complete la instalación.
+
+### 5️⃣ Iniciar el Servidor de Desarrollo
+
+Una vez instaladas todas las librerías, ejecuta:
 
 ```bash
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+O también puedes usar:
 
 ```bash
-ng generate component component-name
+npm start
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+El proyecto se compilará y estará disponible en: **http://localhost:4200/**
 
-```bash
-ng generate --help
+## 🌐 Acceder a la Aplicación
+
+Abre tu navegador web y navega a:
+
+```
+http://localhost:4200/
 ```
 
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+La aplicación se recargará automáticamente si realizas cambios en los archivos del proyecto.
