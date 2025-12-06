@@ -36,6 +36,11 @@ export class RegistroAsegurado {
 
   today: string = new Date().toISOString().split('T')[0];
 
+  filtros = {
+    termino: '',
+    paginaActual: 1,
+    tamanioPagina: 100
+  };
   constructor(
     private fb: FormBuilder,
     private aseguradoService: Asegurado,
@@ -55,20 +60,7 @@ export class RegistroAsegurado {
 
   ngOnChanges(): void {
     if (!this.aseguradoUpdt) return;
-
-    this.aseguradoForm.patchValue({
-      nombre: this.aseguradoUpdt.nombre,
-      cedula: this.aseguradoUpdt.cedula,
-      telefono: this.aseguradoUpdt.telefono,
-      fechaNacimiento: this.aseguradoUpdt.fechaNacimiento
-    });
-
-    if (this.aseguradoUpdt.seguros) {
-      this.segurosSeleccionados = this.aseguradoUpdt.seguros.map((s: any) =>
-        typeof s === 'object' ? s.idSeguro : s
-      );
-      this.aseguradoForm.patchValue({ seguros: this.segurosSeleccionados });
-    }
+    this.obtenerSeguros();
   }
 
   setEmptyForm() {
@@ -78,7 +70,14 @@ export class RegistroAsegurado {
       telefono: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
       fechaNacimiento: ['', Validators.required],
       edad: [{ value: '', disabled: true }], // sin validators ya que se autocalcula
-      seguros: [[], Validators.required]
+      seleccionarSeguros: [false],
+      seguros: [[]]
+    });
+  }
+
+  setupFormListeners(): void {
+    this.aseguradoForm.get('seleccionarSeguros')?.valueChanges.subscribe(checked => {
+      this.toggleSeguro(checked);
     });
   }
 
@@ -100,20 +99,22 @@ export class RegistroAsegurado {
     });
   }
 
-  calcularEdad(fechaNacimiento: string) {
+  calcularEdad(fechaNacimiento: string | Date | null): number {
+    if (!fechaNacimiento) return 0;
+    const fecha = new Date(fechaNacimiento);
+    if (isNaN(fecha.getTime())) return 0; // fecha inválida
+
     const hoy = new Date();
-    const fechaNac = new Date(fechaNacimiento);
+    let edad = hoy.getFullYear() - fecha.getFullYear();
+    const mes = hoy.getMonth() - fecha.getMonth();
 
-    let edad = hoy.getFullYear() - fechaNac.getFullYear();
-    const mes = hoy.getMonth() - fechaNac.getMonth();
-
-    if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
+    if (mes < 0 || (mes === 0 && hoy.getDate() < fecha.getDate())) {
       edad--;
     }
 
-    this.aseguradoForm.get('edad')?.setValue(edad);
-    this.aseguradoForm.get('edad')?.updateValueAndValidity();
+    return edad;
   }
+
 
   onFechaNacimientoChange(event: any) {
     this.calcularEdad(event.target.value);
@@ -122,13 +123,7 @@ export class RegistroAsegurado {
   cargarSeguros() {
     this.cargandoSeguros = true;
 
-    const filtros = {
-      termino: '',
-      paginaActual: 1,
-      tamanioPagina: 100
-    };
-
-    this.seguroService.ConsultarSeguros(filtros).subscribe({
+    this.seguroService.ConsultarSeguros(this.filtros).subscribe({
       next: (response) => {
         this.segurosDisponibles = response?.datos?.seguros ?? [];
         this.cargandoSeguros = false;
@@ -150,7 +145,7 @@ export class RegistroAsegurado {
     }
 
     this.aseguradoForm.get('seguros')?.setValue(seguros);
-    this.aseguradoForm.get('seguros')?.markAsTouched(); 
+    this.aseguradoForm.get('seguros')?.markAsTouched();
   }
   isSeguroSeleccionado(id: number) {
     return this.segurosSeleccionados.includes(id);
@@ -227,7 +222,7 @@ export class RegistroAsegurado {
       telefono: form.telefono,
       fechaNacimiento: form.fechaNacimiento,
       eliminado: form.eliminado,
-      seguros: form.seguros 
+      seguros: form.seguros
     };
 
     this.aseguradoService.ActualizarAsegurado(asegurado).subscribe({
@@ -237,6 +232,40 @@ export class RegistroAsegurado {
       },
       error: () => this.submitEvent.emit(false)
     });
+  }
+
+  obtenerSeguros() {
+    this.aseguradoService.obtenerSeguros(this.filtros, this.aseguradoUpdt!.idAsegurado).subscribe({
+      next: (res: any) => {
+        if (res.datos.asegurado.length) {
+          this.aseguradoForm.patchValue({
+            nombre: res.datos.asegurado[0].nombre,
+            cedula: res.datos.asegurado[0].cedula,
+            telefono: res.datos.asegurado[0].telefono,
+            fechaNacimiento: res.datos.asegurado[0].fechaNacimiento
+          })
+          const edadCalc = this.calcularEdad(res.datos.asegurado[0].fechaNacimiento);
+          this.aseguradoForm.get('edad')?.setValue(edadCalc, { emitEvent: false });
+          this.segurosSeleccionados = res.datos.asegurado.map((s: any) =>
+            typeof s === 'object' ? s.idSeguro : s
+          );
+          this.aseguradoForm.patchValue({
+            seguros: this.segurosSeleccionados,
+            seleccionarSeguros: true
+          });
+        } else {
+          this.aseguradoForm.patchValue({
+            nombre: this.aseguradoUpdt!.nombre,
+            cedula: this.aseguradoUpdt!.cedula,
+            telefono: this.aseguradoUpdt!.telefono,
+            fechaNacimiento: this.aseguradoUpdt!.fechaNacimiento
+          });
+          const edadCalc = this.calcularEdad(this.aseguradoUpdt!.fechaNacimiento);
+          this.aseguradoForm.get('edad')?.setValue(edadCalc, { emitEvent: false });
+        }
+      },
+      error: () => this.submitEvent.emit(false)
+    })
   }
 
 
