@@ -1,2 +1,9 @@
-<app-sidebar></app-sidebar>
+<ng-container *ngIf="(accountService.currentSesion$ | async) && !onLogin; else notLogged">
+    <app-sidebar></app-sidebar>
+</ng-container>
+<ng-template #notLogged>
+  <router-outlet />
+</ng-template>
+
+
 <app-spinner></app-spinner>
