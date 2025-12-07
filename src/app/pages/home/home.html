@@ -18,15 +18,13 @@
                         <!-- Radio buttons para seleccionar tipo de búsqueda -->
                         <div class="flex flex-col sm:flex-row gap-4 mb-3">
                             <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" name="tipoBusqueda" value="cedula" 
-                                    [(ngModel)]="tipoBusqueda" (change)="limpiarResultados()" 
-                                    class="radio radio-primary" />
+                                <input type="radio" name="tipoBusqueda" value="cedula" [(ngModel)]="tipoBusqueda"
+                                    (change)="limpiarResultados()" class="radio radio-primary" />
                                 <span class="text-sm">Buscar por Cédula</span>
                             </label>
                             <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" name="tipoBusqueda" value="codigo" 
-                                    [(ngModel)]="tipoBusqueda" (change)="limpiarResultados()" 
-                                    class="radio radio-primary" />
+                                <input type="radio" name="tipoBusqueda" value="codigo" [(ngModel)]="tipoBusqueda"
+                                    (change)="limpiarResultados()" class="radio radio-primary" />
                                 <span class="text-sm">Buscar por Código de Seguro</span>
                             </label>
                         </div>
@@ -41,10 +39,9 @@
                                         <path d="m21 21-4.3-4.3"></path>
                                     </g>
                                 </svg>
-                                <input #inputBusqueda type="text" 
+                                <input #inputBusqueda type="text"
                                     [placeholder]="tipoBusqueda === 'cedula' ? 'Ingrese cédula...' : 'Ingrese código de seguro...'"
-                                    [(ngModel)]="terminoBusqueda"
-                                    (keyup.enter)="buscar()" />
+                                    [(ngModel)]="terminoBusqueda" (keyup.enter)="buscar()" />
                             </label>
                             <button class="btn btn-primary w-full sm:w-auto" (click)="buscar()"
                                 [disabled]="!terminoBusqueda || terminoBusqueda.trim() === '' || buscando">
@@ -63,7 +60,7 @@
             </div>
 
             <!-- Tabla de resultados - Búsqueda por Cédula -->
-            <div class="overflow-x-auto -mx-2 sm:mx-0" 
+            <div class="overflow-x-auto -mx-2 sm:mx-0"
                 *ngIf="resultados && resultados.length > 0 && tipoBusqueda === 'cedula'">
                 <div class="inline-block min-w-full align-middle">
                     <div class="overflow-hidden">
@@ -73,32 +70,55 @@
                             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
                                 <div><span class="font-medium">Cédula:</span> {{ resultados[0].cedula }}</div>
                                 <div><span class="font-medium">Nombre:</span> {{ resultados[0].nombreAsegurado }}</div>
-                                <div><span class="font-medium">Teléfono:</span> {{ resultados[0].telefono || 'N/A' }}</div>
-                                <div><span class="font-medium">Fecha Nacimiento:</span> {{ resultados[0].fechaNacimiento | date: 'dd/MM/yyyy' }}</div>
+                                <div><span class="font-medium">Teléfono:</span> {{ resultados[0].telefono || 'N/A' }}
+                                </div>
+                                <div><span class="font-medium">Fecha Nacimiento:</span> {{ resultados[0].fechaNacimiento
+                                    | date: 'dd/MM/yyyy' }}</div>
                             </div>
                         </div>
 
+                        <div class="mr-1 mb-2 mt-2 flex gap-2">
+                            <label class="input">
+                                <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                    <g stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" fill="none"
+                                        stroke="currentColor">
+                                        <circle cx="11" cy="11" r="8"></circle>
+                                        <path d="m21 21-4.3-4.3"></path>
+                                    </g>
+                                </svg>
+                                <input type="search" class="grow" [(ngModel)]="filtros.termino"
+                                    placeholder="Buscar..." />
+                            </label>
+                            <button class="btn btn-primary w-full sm:w-auto" (click)="buscar()">Buscar</button>
+                        </div>
                         <!-- Tabla de Seguros -->
-                        <h4 class="text-md font-semibold text-gray-700 mb-2">Seguros Asociados ({{ resultados.length }})</h4>
+                        <h4 class="text-md font-semibold text-gray-700 mb-2">Seguros Asociados ({{ resultados.length }})
+                        </h4>
                         <table class="table min-w-full">
                             <thead>
                                 <tr>
                                     <th class="text-xs sm:text-sm px-2 sm:px-4">N.</th>
                                     <th class="text-xs sm:text-sm px-2 sm:px-4 min-w-[120px]">Nombre Seguro</th>
                                     <th class="text-xs sm:text-sm px-2 sm:px-4 min-w-[80px]">Código</th>
-                                    <th class="text-xs sm:text-sm px-2 sm:px-4 min-w-[100px] whitespace-nowrap">Suma Aseg.</th>
+                                    <th class="text-xs sm:text-sm px-2 sm:px-4 min-w-[100px] whitespace-nowrap">Suma
+                                        Aseg.</th>
                                     <th class="text-xs sm:text-sm px-2 sm:px-4 min-w-[80px]">Prima</th>
-                                    <th class="text-xs sm:text-sm px-2 sm:px-4 min-w-[80px] whitespace-nowrap">Edad Mín</th>
-                                    <th class="text-xs sm:text-sm px-2 sm:px-4 min-w-[80px] whitespace-nowrap">Edad Máx</th>
+                                    <th class="text-xs sm:text-sm px-2 sm:px-4 min-w-[80px] whitespace-nowrap">Edad Mín
+                                    </th>
+                                    <th class="text-xs sm:text-sm px-2 sm:px-4 min-w-[80px] whitespace-nowrap">Edad Máx
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr *ngFor="let item of resultados; let i = index">
-                                    <td class="text-xs sm:text-sm px-2 sm:px-4">{{ i + 1 }}</td>
+                                    <td class="text-xs sm:text-sm px-2 sm:px-4">{{ (filtros.paginaActual - 1) *
+                                        filtros.tamanioPagina + (i + 1) }}</td>
                                     <td class="text-xs sm:text-sm px-2 sm:px-4">{{ item.nombreSeguro }}</td>
                                     <td class="text-xs sm:text-sm px-2 sm:px-4">{{ item.codigoSeguro }}</td>
-                                    <td class="text-xs sm:text-sm px-2 sm:px-4">{{ item.sumaAsegurada | currency:'USD':'symbol':'1.2-2' }}</td>
-                                    <td class="text-xs sm:text-sm px-2 sm:px-4">{{ item.prima | currency:'USD':'symbol':'1.2-2' }}</td>
+                                    <td class="text-xs sm:text-sm px-2 sm:px-4">{{ item.sumaAsegurada |
+                                        currency:'USD':'symbol':'1.2-2' }}</td>
+                                    <td class="text-xs sm:text-sm px-2 sm:px-4">{{ item.prima |
+                                        currency:'USD':'symbol':'1.2-2' }}</td>
                                     <td class="text-xs sm:text-sm px-2 sm:px-4">{{ item.edadMin }}</td>
                                     <td class="text-xs sm:text-sm px-2 sm:px-4">{{ item.edadMax }}</td>
                                 </tr>
@@ -109,7 +129,7 @@
             </div>
 
             <!-- Tabla de resultados - Búsqueda por Código de Seguro -->
-            <div class="overflow-x-auto -mx-2 sm:mx-0" 
+            <div class="overflow-x-auto -mx-2 sm:mx-0"
                 *ngIf="resultados && resultados.length > 0 && tipoBusqueda === 'codigo'">
                 <div class="inline-block min-w-full align-middle">
                     <div class="overflow-hidden">
@@ -119,15 +139,32 @@
                             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
                                 <div><span class="font-medium">Código:</span> {{ resultados[0].codigoSeguro }}</div>
                                 <div><span class="font-medium">Nombre:</span> {{ resultados[0].nombreSeguro }}</div>
-                                <div><span class="font-medium">Suma Asegurada:</span> {{ resultados[0].sumaAsegurada | currency:'USD':'symbol':'1.2-2' }}</div>
-                                <div><span class="font-medium">Prima:</span> {{ resultados[0].prima | currency:'USD':'symbol':'1.2-2' }}</div>
+                                <div><span class="font-medium">Suma Asegurada:</span> {{ resultados[0].sumaAsegurada |
+                                    currency:'USD':'symbol':'1.2-2' }}</div>
+                                <div><span class="font-medium">Prima:</span> {{ resultados[0].prima |
+                                    currency:'USD':'symbol':'1.2-2' }}</div>
                                 <div><span class="font-medium">Edad Mín:</span> {{ resultados[0].edadMin }}</div>
                                 <div><span class="font-medium">Edad Máx:</span> {{ resultados[0].edadMax }}</div>
                             </div>
                         </div>
 
+                        <div class="mr-1 mb-2 mt-2 flex gap-2">
+                            <label class="input">
+                                <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                    <g stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" fill="none"
+                                        stroke="currentColor">
+                                        <circle cx="11" cy="11" r="8"></circle>
+                                        <path d="m21 21-4.3-4.3"></path>
+                                    </g>
+                                </svg>
+                                <input type="search" class="grow" [(ngModel)]="filtros.termino"
+                                    placeholder="Buscar..." />
+                            </label>
+                            <button class="btn btn-primary w-full sm:w-auto" (click)="buscar()">Buscar</button>
+                        </div>
                         <!-- Tabla de Asegurados -->
-                        <h4 class="text-md font-semibold text-gray-700 mb-2">Asegurados Asociados ({{ resultados.length }})</h4>
+                        <h4 class="text-md font-semibold text-gray-700 mb-2">Asegurados Asociados ({{ resultados.length
+                            }})</h4>
                         <table class="table min-w-full">
                             <thead>
                                 <tr>
@@ -135,16 +172,19 @@
                                     <th class="text-xs sm:text-sm px-2 sm:px-4 min-w-[100px]">Cédula</th>
                                     <th class="text-xs sm:text-sm px-2 sm:px-4 min-w-[150px]">Nombre</th>
                                     <th class="text-xs sm:text-sm px-2 sm:px-4 min-w-[100px]">Teléfono</th>
-                                    <th class="text-xs sm:text-sm px-2 sm:px-4 min-w-[120px] whitespace-nowrap">Fecha Nacimiento</th>
+                                    <th class="text-xs sm:text-sm px-2 sm:px-4 min-w-[120px] whitespace-nowrap">Fecha
+                                        Nacimiento</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr *ngFor="let item of resultados; let i = index">
-                                    <td class="text-xs sm:text-sm px-2 sm:px-4">{{ i + 1 }}</td>
+                                    <td class="text-xs sm:text-sm px-2 sm:px-4">{{ (filtros.paginaActual - 1) *
+                                        filtros.tamanioPagina + (i + 1) }}</td>
                                     <td class="text-xs sm:text-sm px-2 sm:px-4">{{ item.cedula }}</td>
                                     <td class="text-xs sm:text-sm px-2 sm:px-4">{{ item.nombreAsegurado }}</td>
                                     <td class="text-xs sm:text-sm px-2 sm:px-4">{{ item.telefono || 'N/A' }}</td>
-                                    <td class="text-xs sm:text-sm px-2 sm:px-4">{{ item.fechaNacimiento | date: 'dd/MM/yyyy' }}</td>
+                                    <td class="text-xs sm:text-sm px-2 sm:px-4">{{ item.fechaNacimiento | date:
+                                        'dd/MM/yyyy' }}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -153,7 +193,7 @@
             </div>
 
             <!-- Sin datos o sin búsqueda -->
-            <div class="flex gap-2 items-center w-full justify-center py-8" 
+            <div class="flex gap-2 items-center w-full justify-center py-8"
                 *ngIf="!buscando && (!resultados || resultados.length === 0) && busquedaRealizada">
                 <ng-icon name="heroExclamationTriangle"></ng-icon>
                 <p class="text-sm sm:text-base text-gray-700 italic">
@@ -161,13 +201,19 @@
                 </p>
             </div>
 
-            <div class="flex gap-2 items-center w-full justify-center py-8" 
-                *ngIf="!buscando && !busquedaRealizada">
+            <div class="flex gap-2 items-center w-full justify-center py-8" *ngIf="!buscando && !busquedaRealizada">
                 <ng-icon name="heroMagnifyingGlass"></ng-icon>
                 <p class="text-sm sm:text-base text-gray-700 italic">
                     Ingrese un criterio de búsqueda para comenzar
                 </p>
             </div>
+        </div>
+
+        <div class="mt-4">
+            <app-paginador [paginaActual]="filtros.paginaActual" [tamanioPagina]="filtros.tamanioPagina"
+                [registrosTotales]="registrosTotales" [registrosFiltrados]="registrosFiltrados"
+                (paginaCambiada)="onPageChange($event)" [seFiltra]="seFiltra">
+            </app-paginador>
         </div>
     </div>
 </div>

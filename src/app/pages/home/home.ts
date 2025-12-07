@@ -5,6 +5,7 @@ import { AlertService } from '../../services/alert';
 import { FormsModule } from '@angular/forms';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroExclamationTriangle, heroMagnifyingGlass, heroXMark } from '@ng-icons/heroicons/outline';
+import { Paginador } from '../../components/paginador/paginador';
 
 enum ResponseCode {
   Success = 0,
@@ -13,12 +14,12 @@ enum ResponseCode {
 
 @Component({
   selector: 'app-home',
-  imports: [CommonModule, FormsModule, NgIconComponent],
+  imports: [CommonModule, FormsModule, NgIconComponent, Paginador],
   providers: [
-    provideIcons({ 
-      heroMagnifyingGlass, 
-      heroXMark, 
-      heroExclamationTriangle 
+    provideIcons({
+      heroMagnifyingGlass,
+      heroXMark,
+      heroExclamationTriangle
     })
   ],
   templateUrl: './home.html',
@@ -30,6 +31,8 @@ export class Home implements OnInit {
   resultados: any[] = [];
   buscando: boolean = false;
   busquedaRealizada: boolean = false;
+  registrosFiltrados: number = 0;
+  registrosTotales: number = 0;
 
   filtros = {
     paginaActual: 1,
@@ -64,23 +67,31 @@ export class Home implements OnInit {
     this.seguroService.ConsultaGeneral(this.filtros, cedula, codigo).subscribe({
       next: (response) => {
         this.buscando = false;
-        
+
+        this.registrosTotales = response.datos.registrosTotales;
+        this.registrosFiltrados = response.datos.registrosFiltrados;
+
+        if (!response.datos.seguros.length && this.filtros.termino) {
+          this.filtros.termino = '';
+          this.buscar();
+        }
+
         if (response.estado === ResponseCode.Success) {
           let dataArray = response.datos;
-          
+
           if (response.datos && response.datos.seguros) {
             dataArray = response.datos.seguros;
           }
-          
+
           if (dataArray && Array.isArray(dataArray) && dataArray.length > 0) {
             this.resultados = dataArray;
-            
-            const cantidad = dataArray.length;
-            const mensaje = this.tipoBusqueda === 'cedula' 
-              ? `Se encontraron ${cantidad} seguro${cantidad > 1 ? 's' : ''} asociado${cantidad > 1 ? 's' : ''}`
-              : `Se encontraron ${cantidad} asegurado${cantidad > 1 ? 's' : ''} asociado${cantidad > 1 ? 's' : ''}`;
-            
-            this.alertService.success('Búsqueda exitosa', mensaje);
+
+            //const cantidad = dataArray.length;
+            // const mensaje = this.tipoBusqueda === 'cedula'
+            //   ? `Se encontraron ${cantidad} seguro${cantidad > 1 ? 's' : ''} asociado${cantidad > 1 ? 's' : ''}`
+            //   : `Se encontraron ${cantidad} asegurado${cantidad > 1 ? 's' : ''} asociado${cantidad > 1 ? 's' : ''}`;
+
+            //this.alertService.success('Búsqueda exitosa', mensaje);
           } else {
             this.resultados = [];
             this.alertService.info(
@@ -96,7 +107,7 @@ export class Home implements OnInit {
       error: (error) => {
         this.buscando = false;
         console.error('Error en la búsqueda:', error);
-        
+
         this.alertService.error(
           'Error en la búsqueda',
           error?.error?.mensaje || 'Ocurrió un error al realizar la búsqueda. Por favor intente nuevamente.'
@@ -116,5 +127,14 @@ export class Home implements OnInit {
     this.terminoBusqueda = '';
     this.resultados = [];
     this.busquedaRealizada = false;
+  }
+
+  onPageChange(num: number) {
+    this.filtros.paginaActual = num;
+    this.buscar();
+  }
+
+  get seFiltra(): boolean {
+    return this.filtros.termino !== '';
   }
 }
