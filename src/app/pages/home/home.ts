@@ -6,6 +6,8 @@ import { FormsModule } from '@angular/forms';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroExclamationTriangle, heroMagnifyingGlass, heroXMark } from '@ng-icons/heroicons/outline';
 import { Paginador } from '../../components/paginador/paginador';
+import { Account as AccountService } from '../../services/account';
+import { Router } from '@angular/router';
 
 enum ResponseCode {
   Success = 0,
@@ -42,8 +44,16 @@ export class Home implements OnInit {
 
   constructor(
     private seguroService: Seguro,
-    private alertService: AlertService
-  ) { }
+    private alertService: AlertService,
+    private accountService: AccountService,
+    private router: Router
+  ) {
+    const rol = this.accountService.obtenerSesion()?.rol;
+
+    if (rol !== 'Administrador' && rol !== 'General') {
+      this.router.navigateByUrl('')
+    }
+   }
 
   ngOnInit(): void {
   }

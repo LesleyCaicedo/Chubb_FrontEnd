@@ -49,7 +49,7 @@
                         Inicio
                     </a>
                 </li>
-                <li>
+                <li *ngIf="user.role === 'Administrador' || user.role === 'General'">
                     <a routerLink="/asegurados" routerLinkActive="active" (click)="closeDrawerOnMobile()">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                             class="bi bi-people" viewBox="0 0 16 16">
@@ -59,7 +59,7 @@
                         Asegurados
                     </a>
                 </li>
-                <li>
+                <li *ngIf="user.role === 'Administrador'">
                     <a routerLink="/seguros" routerLinkActive="active" (click)="closeDrawerOnMobile()">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                             class="bi bi-list-check" viewBox="0 0 16 16">

@@ -5,10 +5,11 @@ import { Account as AccountService } from '../../services/account';
 import { Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { heroUserCircle } from '@ng-icons/heroicons/outline';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-sidebar',
-  imports: [RouterOutlet, RouterModule, NgIcon],
+  imports: [RouterOutlet, RouterModule, NgIcon, CommonModule],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.css',
   providers: [provideIcons({

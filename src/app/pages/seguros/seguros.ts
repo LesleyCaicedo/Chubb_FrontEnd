@@ -11,6 +11,8 @@ import { Seguro } from '../../services/seguro';
 import { RegistroSeguro } from './modals/registro.seguro/registro.seguro';
 import { VizualizarAsegurados } from './modals/vizualizar.asegurados/vizualizar.asegurados';
 import { AlertService } from '../../services/alert';
+import { Account as AccountService } from '../../services/account';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-seguros',
@@ -44,7 +46,13 @@ export class Seguros {
     tamanioPagina: 10
   };
 
-  constructor(private seguroService: Seguro, private alertService: AlertService) { }
+  constructor(private seguroService: Seguro, private alertService: AlertService, private accountService: AccountService, private router: Router) {
+    const rol = this.accountService.obtenerSesion()?.rol;
+
+    if (rol !== 'Administrador') {
+      this.router.navigateByUrl('')
+    }
+  }
 
   ngOnInit(): void {
     this.ConsultarSeguros();

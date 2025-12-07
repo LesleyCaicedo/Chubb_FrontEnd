@@ -11,6 +11,8 @@ import { debounceTime, distinctUntilChanged, fromEvent, map } from 'rxjs';
 import { ModalSeguros } from './modals/modal-seguros/modal-seguros';
 import { AlertService } from '../../services/alert';
 import { RegistroAsegurado } from './modals/registro.asegurado/registro.asegurado';
+import { Router } from '@angular/router';
+import { Account as AccountService } from '../../services/account';
 
 @Component({
   selector: 'app-asegurados',
@@ -37,6 +39,7 @@ export class Asegurados implements OnInit {
   registrosTotales: number = 0;
   urlEliminar: string = '';
   aseguradoSeleccionado: number | null = null;
+  usuarioGestor: string = '';
 
   filtros: FiltradoModel = {
     termino: '',
@@ -51,7 +54,16 @@ export class Asegurados implements OnInit {
     tamanioPagina: 100
   };
 
-  constructor(private aseguradoService: Asegurado, private alertService: AlertService) { }
+  constructor(private aseguradoService: Asegurado, private alertService: AlertService, private accountService: AccountService, private router: Router) {
+    
+    const rol = this.accountService.obtenerSesion()?.rol;
+
+    if (rol !== 'Administrador' && rol !== 'General') {
+      this.router.navigateByUrl('')
+    }
+
+    this.usuarioGestor = this.accountService.obtenerSesion()?.nombre!;
+  }
 
   ngOnInit(): void {
     this.obtenerAsegurados();
@@ -112,7 +124,7 @@ export class Asegurados implements OnInit {
         );
 
         if (confirmado) {
-          this.aseguradoService.EliminarAsegurado(asegurado.idAsegurado).subscribe({
+          this.aseguradoService.EliminarAsegurado(asegurado.idAsegurado, this.usuarioGestor).subscribe({
             next: () => {
               this.alertService.success('¡Eliminado!', 'Asegurado eliminado exitosamente');
               this.obtenerAsegurados();

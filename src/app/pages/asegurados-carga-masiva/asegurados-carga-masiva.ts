@@ -2,6 +2,7 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { Asegurado as AseguradoService } from '../../services/asegurado';
+import { Account as AccountService } from '../../services/account';
 import Swal from 'sweetalert2'
 
 @Component({
@@ -13,9 +14,12 @@ import Swal from 'sweetalert2'
 export class AseguradosCargaMasiva {
   isDragging = false;
   selectedFile: File | null = null;
-  
+  usuarioGestor: string = ''
+
   @Output() submitEvent = new EventEmitter<boolean>();
-  constructor(private http: HttpClient, private aseguradoService: AseguradoService) { }
+  constructor(private http: HttpClient, private aseguradoService: AseguradoService, private accountService: AccountService) {
+    this.usuarioGestor = this.accountService.obtenerSesion()?.nombre!;
+  }
 
   // -----------------------------
   // Drag & Drop
@@ -79,7 +83,7 @@ export class AseguradosCargaMasiva {
     const formData = new FormData();
     formData.append('file', this.selectedFile);
 
-    this.aseguradoService.cargaMasiva(formData).subscribe({
+    this.aseguradoService.cargaMasiva(formData, this.usuarioGestor).subscribe({
       next: (res) => {
         Swal.fire({
           title: "Archivo cargado correctamente",

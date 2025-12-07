@@ -6,4 +6,5 @@ export interface AseguradoModel {
   fechaNacimiento: Date;
   seguros: number[] | null; 
   eliminado: boolean;
+  usuarioGestor: string;
 }

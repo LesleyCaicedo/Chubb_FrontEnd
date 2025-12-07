@@ -8,6 +8,7 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { heroInformationCircle, heroMagnifyingGlass, heroUser, heroXMark } from '@ng-icons/heroicons/outline';
 import { Shareds } from '../../../../commons/utils/shared.util';
 import { AlertService } from '../../../../services/alert';
+import { Account as AccountService } from '../../../../services/account';
 
 @Component({
   selector: 'app-registro-asegurado',
@@ -36,6 +37,8 @@ export class RegistroAsegurado {
 
   today: string = new Date().toISOString().split('T')[0];
 
+  usuarioGestor: string = '';
+
   filtros = {
     termino: '',
     paginaActual: 1,
@@ -46,13 +49,20 @@ export class RegistroAsegurado {
     private fb: FormBuilder,
     private aseguradoService: Asegurado,
     private seguroService: Seguro,
-    private alertService: AlertService
+    private alertService: AlertService,
+    private accountService: AccountService
   ) { }
 
   ngOnInit(): void {
     this.setEmptyForm();
     this.setupEdadCalculation();
+
     this.setupFormListeners();
+    this.usuarioGestor = this.accountService.obtenerSesion()?.nombre!;
+    // this.aseguradoForm.valueChanges.subscribe(val => {
+    //   console.log('Valores actuales del formulario:', val);
+    //   console.log('Estado del formulario:', this.aseguradoForm.status);
+    // });
   }
 
   ngOnChanges(): void {
@@ -241,7 +251,8 @@ export class RegistroAsegurado {
       telefono: form.telefono,
       fechaNacimiento: form.fechaNacimiento,
       eliminado: false,
-      seguros: form.seleccionarSeguros ? form.seguros : []
+      seguros: form.seleccionarSeguros ? form.seguros : [],
+      usuarioGestor: this.usuarioGestor
     };
 
     this.aseguradoService.RegistrarAsegurado(asegurado).subscribe({
@@ -268,7 +279,8 @@ export class RegistroAsegurado {
       telefono: form.telefono,
       fechaNacimiento: form.fechaNacimiento,
       eliminado: this.aseguradoUpdt!.eliminado || false,
-      seguros: form.seleccionarSeguros ? form.seguros : []
+      seguros: form.seleccionarSeguros ? form.seguros : [],
+      usuarioGestor: this.usuarioGestor
     };
 
     this.aseguradoService.ActualizarAsegurado(asegurado).subscribe({

@@ -30,11 +30,11 @@ export class Asegurado {
     return this.http.post<ResponseModel>(`${this.baseUrl}/ActualizarAsegurado`, Seguro);
   }
 
-  EliminarAsegurado(id: number): Observable<ResponseModel> {
-    return this.http.delete<ResponseModel>(`${this.baseUrl}/EliminarAsegurado/${id}`);
+  EliminarAsegurado(id: number, usuarioGestor: string): Observable<ResponseModel> {
+    return this.http.delete<ResponseModel>(`${this.baseUrl}/EliminarAsegurado/${id}?usuarioGestor=${usuarioGestor}`);
   }
     
-  cargaMasiva(formData: FormData): Observable<ResponseModel>  {
-    return this.http.post<ResponseModel>(`${this.baseUrl}/upload`, formData);
+  cargaMasiva(formData: FormData, usuarioGestor: string): Observable<ResponseModel>  {
+    return this.http.post<ResponseModel>(`${this.baseUrl}/upload?usuarioGestor=${usuarioGestor}`, formData);
   }
 }
