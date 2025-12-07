@@ -30,7 +30,7 @@ import { AlertService } from '../../services/alert';
 })
 export class Seguros {
   @ViewChild('filtroTexto') filtroTexto!: ElementRef;
-  
+
   urlEliminar: string = '';
   seguroEditar: SeguroModel | null = null;
   listaSeguros: SeguroModel[] = [];
@@ -44,7 +44,7 @@ export class Seguros {
     tamanioPagina: 10
   };
 
-  constructor(private seguroService: Seguro, private alertService: AlertService ) { }
+  constructor(private seguroService: Seguro, private alertService: AlertService) { }
 
   ngOnInit(): void {
     this.ConsultarSeguros();
@@ -79,26 +79,45 @@ export class Seguros {
     this.seguroEditar = { ...this.listaSeguros[index] };
   }
 
-    async eliminarSeguro(seguro: SeguroModel) {
-    const confirmado = await this.alertService.mostrarConfirmacion(
-      '¿Estás seguro?',
-      `¿Deseas eliminar "${seguro.nombre}"?`,
-      'warning',
-      'Sí, eliminar',
-      'Cancelar'
-    );
+  async eliminarSeguro(seguro: SeguroModel) {
+    this.seguroService.ConsultarSeguroId(this.filtros, seguro.idSeguro).subscribe({
+      next: async (res: any) => {
+        const asegurados = res.datos.seguros || [];
 
-    if (confirmado) {
-      this.seguroService.EliminarSeguro(seguro.idSeguro).subscribe({
-        next: () => {
-          this.alertService.success('¡Eliminado!', 'Seguro eliminado exitosamente');
-          this.ConsultarSeguros();
-        },
-        error: () => {
-          this.alertService.error('Error', 'No se pudo eliminar');
+        if (asegurados.length > 0) {
+          const nombresAsegurados = asegurados
+            .map((s: any) => s.nombre || 'Seguro sin nombre')
+            .join(', ');
+          
+          this.alertService.error(
+            'No se puede eliminar',
+            `El seguro "${seguro.nombre}" tiene ${asegurados.length} asegurado(s) asignado(s). Debe remover todos los asegurados antes de eliminarlo.`
+          );
+          return;
         }
-      });
-    }
+        const confirmado = await this.alertService.mostrarConfirmacion(
+          '¿Estás seguro?',
+          `¿Deseas eliminar "${seguro.nombre}"?`,
+          'warning',
+          'Sí, eliminar',
+          'Cancelar'
+        );
+
+        if (confirmado) {
+          this.seguroService.EliminarSeguro(seguro.idSeguro).subscribe({
+            next: () => {
+              this.alertService.success('¡Eliminado!', 'Seguro eliminado exitosamente');
+              this.ConsultarSeguros();
+            },
+            error: () => {
+              this.alertService.error('Error', 'No se pudo eliminar');
+            }
+          });
+        }
+      }
+    })
+
+
   }
 
   EventoExitoso(exitoso: boolean) {

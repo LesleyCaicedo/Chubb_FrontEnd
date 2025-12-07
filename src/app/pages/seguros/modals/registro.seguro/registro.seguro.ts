@@ -25,7 +25,7 @@ export class RegistroSeguro implements OnInit, OnChanges {
   seguroForm: FormGroup<any> = new FormBuilder().group({});
   disable: boolean = false;
 
-  constructor(private fb: FormBuilder, private seguroService: Seguro, private alertService: AlertService) {}
+  constructor(private fb: FormBuilder, private seguroService: Seguro, private alertService: AlertService) { }
 
   ngOnInit(): void {
     this.setEmptyForm();
@@ -42,6 +42,8 @@ export class RegistroSeguro implements OnInit, OnChanges {
         edadMin: this.seguroUpdt.edadMin,
         edadMax: this.seguroUpdt.edadMax
       });
+
+      this.seguroForm.get('codigo')?.disable({ emitEvent: false });
 
       if (this.seguroUpdt.edadMin || this.seguroUpdt.edadMax) {
         this.toggleEdadFields(true);
@@ -114,7 +116,7 @@ export class RegistroSeguro implements OnInit, OnChanges {
   calcularPrima(): number {
     const sumaAsegurada = this.seguroForm.get('sumaAsegurada')?.value;
     if (sumaAsegurada && sumaAsegurada > 0) {
-      return sumaAsegurada * 0.05; 
+      return sumaAsegurada * 0.05;
     }
     return 0;
   }
@@ -133,10 +135,12 @@ export class RegistroSeguro implements OnInit, OnChanges {
 
   onSubmit() {
     const isFormValid = this.isFormValid();
-    
+
     if (isFormValid) {
-      if (!this.seguroUpdt) this.RegistrarSeguro();
-      else this.ActualizarSeguro();
+      if (!this.seguroUpdt) 
+          this.RegistrarSeguro();
+      else 
+          this.ActualizarSeguro();
     } else {
       Object.keys(this.seguroForm.controls).forEach(key => {
         const control = this.seguroForm.get(key);
@@ -149,7 +153,7 @@ export class RegistroSeguro implements OnInit, OnChanges {
 
   isFormValid(): boolean {
     const controls = this.seguroForm.controls;
-    
+
     if (!controls['nombre'].value || !controls['codigo'].value || !controls['sumaAsegurada'].value) {
       return false;
     }
@@ -157,11 +161,11 @@ export class RegistroSeguro implements OnInit, OnChanges {
     if (controls['rangoEdad'].value) {
       const edadMin = controls['edadMin'].value;
       const edadMax = controls['edadMax'].value;
-      
+
       if (!edadMin || !edadMax) {
         return false;
       }
-      
+
       if (parseInt(edadMax) <= parseInt(edadMin)) {
         return false;
       }
@@ -172,12 +176,12 @@ export class RegistroSeguro implements OnInit, OnChanges {
 
   RegistrarSeguro() {
     const formValue = this.seguroForm.getRawValue();
-    
+
     const seguroData: SeguroModel = {
       nombre: formValue.nombre,
       codigo: formValue.codigo,
       sumaAsegurada: formValue.sumaAsegurada,
-      prima: this.calcularPrima(), 
+      prima: this.calcularPrima(),
       edadMin: formValue.rangoEdad && formValue.edadMin ? formValue.edadMin : null,
       edadMax: formValue.rangoEdad && formValue.edadMax ? formValue.edadMax : null
     } as SeguroModel;
@@ -198,7 +202,7 @@ export class RegistroSeguro implements OnInit, OnChanges {
 
   ActualizarSeguro() {
     const formValue = this.seguroForm.getRawValue();
-    
+
     let seguroData: SeguroModel = {
       idSeguro: this.seguroUpdt!.idSeguro,
       nombre: formValue.nombre,
@@ -230,6 +234,6 @@ export class RegistroSeguro implements OnInit, OnChanges {
     modal.close();
 
     this.setEmptyForm();
-    this.setupFormListeners(); 
+    this.setupFormListeners();
   }
 }

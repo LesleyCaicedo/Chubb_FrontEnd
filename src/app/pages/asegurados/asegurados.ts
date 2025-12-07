@@ -44,6 +44,13 @@ export class Asegurados implements OnInit {
     tamanioPagina: 10
   };
 
+  // Filtros para consultar seguros
+  filtrosSeguros = {
+    termino: '',
+    paginaActual: 1,
+    tamanioPagina: 100
+  };
+
   constructor(private aseguradoService: Asegurado, private alertService: AlertService) { }
 
   ngOnInit(): void {
@@ -71,7 +78,6 @@ export class Asegurados implements OnInit {
       },
       error: (error) => {
         this.alertService.error('error', 'Error al cargar asegurados');
-
       }
     });
   }
@@ -81,25 +87,48 @@ export class Asegurados implements OnInit {
   }
 
   async eliminarAsegurado(asegurado: AseguradoModel) {
-    const confirmado = await this.alertService.mostrarConfirmacion(
-      '¿Estás seguro?',
-      `¿Deseas eliminar "${asegurado.nombre}"?`,
-      'warning',
-      'Sí, eliminar',
-      'Cancelar'
-    );
-
-    if (confirmado) {
-      this.aseguradoService.EliminarAsegurado(asegurado.idAsegurado).subscribe({
-        next: () => {
-          this.alertService.success('¡Eliminado!', 'Asegurado eliminado exitosamente');
-          this.obtenerAsegurados();
-        },
-        error: () => {
-          this.alertService.error('Error', 'No se pudo eliminar');
+    this.aseguradoService.obtenerSeguros(this.filtrosSeguros, asegurado.idAsegurado).subscribe({
+      next: async (res: any) => {
+        const seguros = res.datos.asegurado || [];
+        
+        if (seguros.length > 0) {
+          const nombresSeguros = seguros
+            .map((s: any) => s.nombre || 'Asegurado sin nombre')
+            .join(', ');
+          
+          this.alertService.error(
+            'No se puede eliminar',
+            `El asegurado "${asegurado.nombre}" tiene ${seguros.length} seguro(s) asignado(s). Debe remover todos los seguros antes de eliminarlo.`
+          );
+          return;
         }
-      });
-    }
+
+        const confirmado = await this.alertService.mostrarConfirmacion(
+          '¿Estás seguro?',
+          `¿Deseas eliminar a "${asegurado.nombre}"?`,
+          'warning',
+          'Sí, eliminar',
+          'Cancelar'
+        );
+
+        if (confirmado) {
+          this.aseguradoService.EliminarAsegurado(asegurado.idAsegurado).subscribe({
+            next: () => {
+              this.alertService.success('¡Eliminado!', 'Asegurado eliminado exitosamente');
+              this.obtenerAsegurados();
+            },
+            error: (error) => {
+              const mensaje = error?.error?.mensaje || 'No se pudo eliminar el asegurado';
+              this.alertService.error('Error', mensaje);
+            }
+          });
+        }
+      },
+      error: (error) => {
+        console.error('Error al verificar seguros:', error);
+        this.alertService.error('Error', 'No se pudo verificar los seguros del asegurado');
+      }
+    });
   }
 
   onChangeViewValue(event: any) {
