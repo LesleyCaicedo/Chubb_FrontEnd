@@ -47,13 +47,6 @@ export class Asegurados implements OnInit {
     tamanioPagina: 10
   };
 
-  // Filtros para consultar seguros
-  filtrosSeguros = {
-    termino: '',
-    paginaActual: 1,
-    tamanioPagina: 100
-  };
-
   constructor(private aseguradoService: Asegurado, private alertService: AlertService, private accountService: AccountService, private router: Router) {
     
     const rol = this.accountService.obtenerSesion()?.rol;
@@ -99,7 +92,7 @@ export class Asegurados implements OnInit {
   }
 
   async eliminarAsegurado(asegurado: AseguradoModel) {
-    this.aseguradoService.obtenerSeguros(this.filtrosSeguros, asegurado.idAsegurado).subscribe({
+    this.aseguradoService.obtenerSeguros(this.filtros, asegurado.idAsegurado).subscribe({
       next: async (res: any) => {
         const seguros = res.datos.asegurado || [];
         
