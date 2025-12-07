@@ -20,7 +20,7 @@ export class VizualizarAsegurados implements OnChanges{
   filtros: FiltradoModel = {
     termino: '',
     paginaActual: 1,
-    tamanioPagina: 5 // Cambiar esto si se cambia el valor por defecto en el select del html
+    tamanioPagina: 10 // Cambiar esto si se cambia el valor por defecto en el select del html
   };
 
   constructor(private seguroService: SeguroService) { }
@@ -36,6 +36,8 @@ export class VizualizarAsegurados implements OnChanges{
   obtenerAsegurados() {
     this.seguroService.ConsultarSeguroId(this.filtros, this.id).subscribe({
       next: (resp: ResponseModel) => {
+        this.registrosTotales = resp.datos.registrosTotales;
+
         this.listaAsegurados = resp.datos.seguros.map((element: any) => ({
           cedula: element.cedula,
           nombreAsegurado: element.nombre,

@@ -1,0 +1,73 @@
+<div class="login-container min-h-screen w-full bg-gray-100 flex flex-col">
+    <!-- Header -->
+    <div class="login-header flex items-center justify-center h-20 bg-white shadow-sm">
+        <img src="assets/chubb-logo.png" alt="Optinet Logo" class="h-5" />
+    </div>
+
+    <!-- Login Form Container -->
+    <div class="flex-1 flex items-center justify-center p-4">
+        <fieldset class="fieldset bg-base-200 border-base-300 rounded-box border p-6 
+                     w-full max-w-sm md:max-w-md shadow-lg">
+            <div class="text-center text-xl font-semibold mb-6 font-serif">Iniciar Sesión</div>
+
+            <!-- FORMULARIO -->
+            <form #loginForm="ngForm" (ngSubmit)="login()" autocomplete="off">
+                <!-- Usuario -->
+                <div class="mb-4">
+                    <label class="label">
+                        <span class="label-text">Usuario</span>
+                    </label>
+                    <div class="flex items-center gap-2">
+                        <input type="text" name="usuario" class="input input-bordered w-full focus:outline-0"
+                            placeholder="Usuario" [(ngModel)]="usuario" required />
+                        <ng-icon name="heroUser" size="24" class="text-base-content/70"></ng-icon>
+                    </div>
+                </div>
+
+                <!-- Contraseña -->
+                <div class="mb-4">
+                    <label class="label">
+                        <span class="label-text">Contraseña</span>
+                    </label>
+                    <div class="flex items-center gap-2">
+                        <input id="passwordInput" type="password" name="clave"
+                            class="input input-bordered w-full focus:outline-0" placeholder="Contraseña"
+                            [(ngModel)]="clave" required />
+                        <ng-icon name="heroLockClosed" size="24" class="text-base-content/70"></ng-icon>
+                    </div>
+                </div>
+
+                <!-- Link recuperar contraseña -->
+                <!-- <div class="text-center mb-4">
+          <a class="text-sm text-gray-500 hover:text-gray-700 cursor-pointer" onclick="recuperar_clave.show()">
+            ¿Olvidaste tu contraseña?
+          </a>
+        </div> -->
+
+                <!-- Botón Login -->
+                <button type="submit" class="btn bg-purple-800 text-white w-full rounded-lg">
+                    Acceder
+                </button>
+            </form>
+        </fieldset>
+    </div>
+</div>
+
+<!-- Modal -->
+<!-- <dialog id="recuperar_clave" class="modal" (keyup)="limpiarUsuarioRecuperar($event)">
+  <div class="modal-box">
+    <form method="dialog">
+      <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+        (click)="limpiarUsuarioRecuperar()">✕</button>
+    </form>
+
+    <h3 class="text-lg font-bold mb-2">Recuperar contraseña</h3>
+    <p class="text-sm mb-4">
+      Ingresa tu usuario y te enviaremos tu nueva contraseña a tu correo registrado.
+    </p>
+
+    <input type="text" placeholder="Ingrese su usuario" class="input input-bordered w-full mb-3 focus:outline-0"
+      [(ngModel)]="usuarioRecuperar" name="usuarioRecuperar" />
+    <button class="btn btn-soft w-full" (click)="recuperarClave()">Enviar</button>
+  </div>
+</dialog> -->

@@ -30,10 +30,17 @@
                 <img src="assets/chubb-logo.png" alt="logo">
             </div>
 
+            <div class="p-3 flex gap-2">
+                <ng-icon name="heroUserCircle" class="text-2xl"></ng-icon><span>{{ user.name }}</span>
+            </div>
+
+            <div class="w-full h-0.5 bg-gray-300"></div>
+
             <!-- Menu -->
             <ul class="menu p-4 text-base-content flex-1 gap-1 w-full">
                 <li>
-                    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"  (click)="closeDrawerOnMobile()">
+                    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+                        (click)="closeDrawerOnMobile()">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                             class="bi bi-house" viewBox="0 0 16 16">
                             <path
@@ -63,6 +70,20 @@
                     </a>
                 </li>
             </ul>
+
+            <!-- Logout Button -->
+            <div class="p-4 border-t border-base-300">
+                <button class="btn btn-ghost w-full justify-start" (click)="logout()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-box-arrow-right" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                            d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z" />
+                        <path fill-rule="evenodd"
+                            d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z" />
+                    </svg>
+                    Cerrar Sesión
+                </button>
+            </div>
         </aside>
     </div>
 </div>
