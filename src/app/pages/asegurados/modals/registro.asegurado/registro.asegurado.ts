@@ -36,7 +36,7 @@ export class RegistroAsegurado {
   cargandoSeguros = false;
 
   today: string = new Date().toISOString().split('T')[0];
-  usuarioGestor: string = ''; // Variable para almacenar el usuario gestor
+  usuarioGestor: string = ''; 
 
   filtros = {
     termino: '',
@@ -57,7 +57,6 @@ export class RegistroAsegurado {
     this.setupEdadCalculation();
     this.setupFormListeners();
     
-    // Obtener el usuario gestor desde el servicio de autenticación
     this.usuarioGestor = this.accountService.obtenerSesion()?.nombre || 'usuario_default';
   }
 
@@ -78,12 +77,10 @@ export class RegistroAsegurado {
     });
   }
 
-  // Validador personalizado para seguros
   validarSeguros(): boolean {
     const seleccionarSeguros = this.aseguradoForm.get('seleccionarSeguros')?.value;
     const seguros = this.aseguradoForm.get('seguros')?.value || [];
     
-    // Si el checkbox está marcado, debe haber al menos un seguro
     if (seleccionarSeguros && seguros.length === 0) {
       return false;
     }
@@ -99,7 +96,6 @@ export class RegistroAsegurado {
         control?.setValidators([Validators.required, Validators.minLength(1)]);
         control?.updateValueAndValidity();
         
-        // NUEVO: Cargar seguros cuando se marca el checkbox si ya hay edad
         const edad = this.aseguradoForm.get('edad')?.value;
         if (edad && edad > 0) {
           this.cargarSegurosPorEdad(edad);
@@ -108,7 +104,6 @@ export class RegistroAsegurado {
         control?.clearValidators();
         control?.setValue([]);
         control?.updateValueAndValidity();
-        // NUEVO: Limpiar seguros cuando se desmarca el checkbox
         this.segurosDisponibles = [];
       }
 
@@ -116,7 +111,6 @@ export class RegistroAsegurado {
     });
   }
 
-  // MÉTODO MODIFICADO: Ahora carga seguros automáticamente
   setupEdadCalculation() {
     const fechaNacControl = this.aseguradoForm.get('fechaNacimiento');
 
@@ -124,9 +118,7 @@ export class RegistroAsegurado {
       if (fecha) {
         const edad = this.calcularEdad(fecha);
         this.aseguradoForm.get('edad')?.setValue(edad, { emitEvent: false });
-        
-        // NUEVO: Cargar seguros automáticamente cuando cambia la edad
-        // SOLO si el checkbox está marcado
+
         if (edad > 0 && this.aseguradoForm.get('seleccionarSeguros')?.value) {
           this.cargarSegurosPorEdad(edad);
         }
@@ -140,10 +132,8 @@ export class RegistroAsegurado {
   calcularEdad(fechaNacimiento: string | Date | null): number {
     if (!fechaNacimiento) return 0;
     
-    // Manejar tanto string como Date
     let fecha: Date;
     if (typeof fechaNacimiento === 'string') {
-      // Para evitar problemas de timezone, parseamos manualmente
       const partes = fechaNacimiento.split('-');
       if (partes.length === 3) {
         fecha = new Date(parseInt(partes[0]), parseInt(partes[1]) - 1, parseInt(partes[2]));
@@ -167,14 +157,12 @@ export class RegistroAsegurado {
     return edad;
   }
 
-  // MÉTODO MODIFICADO: Ahora también carga seguros
   onFechaNacimientoChange(event: any) {
     const fecha = event.target.value;
     if (fecha) {
       const edad = this.calcularEdad(fecha);
       this.aseguradoForm.get('edad')?.setValue(edad, { emitEvent: false });
       
-      // NUEVO: Cargar seguros automáticamente SOLO si el checkbox está marcado
       if (edad > 0 && this.aseguradoForm.get('seleccionarSeguros')?.value) {
         this.cargarSegurosPorEdad(edad);
       }
@@ -183,7 +171,7 @@ export class RegistroAsegurado {
     }
   }
 
-  // NUEVO MÉTODO: Cargar seguros por edad específica
+  // Método para REGISTRO NUEVO - Solo seguros en rango
   cargarSegurosPorEdad(edad: number) {
     this.cargandoSeguros = true;
 
@@ -192,7 +180,6 @@ export class RegistroAsegurado {
         this.segurosDisponibles = response?.datos?.seguros ?? [];
         this.cargandoSeguros = false;
 
-        // Opcional: Mostrar alerta si no hay seguros disponibles
         if (this.segurosDisponibles.length === 0) {
           this.alertService.info(
             'Sin seguros disponibles',
@@ -204,23 +191,88 @@ export class RegistroAsegurado {
         this.segurosDisponibles = [];
         this.cargandoSeguros = false;
         console.error('Error al cargar seguros:', error);
-        // No mostrar error al usuario, solo dejar vacío
       }
     });
   }
 
-  // MÉTODO MODIFICADO: Ahora verifica si hay edad antes de cargar
+  // Método especial para ACTUALIZACIÓN - Incluye seguros fuera de rango que ya tiene
+  cargarSegurosParaActualizacion(edad: number, segurosActuales: number[]) {
+    this.cargandoSeguros = true;
+
+    // Cargar seguros disponibles para la edad actual
+    this.seguroService.ConsultarSegurosPorEdad(edad).subscribe({
+      next: (response) => {
+        const segurosDisponiblesEdad = response?.datos?.seguros ?? [];
+        const idsDisponibles = segurosDisponiblesEdad.map((s: SeguroModel) => s.idSeguro);
+        
+        // Identificar seguros que tiene el asegurado pero que están fuera de rango
+        const segurosActualesIds = segurosActuales.filter(id => !idsDisponibles.includes(id));
+        
+        if (segurosActualesIds.length > 0) {
+          // Cargar la información completa de esos seguros
+          this.cargarSegurosEspecificos(segurosActualesIds, segurosDisponiblesEdad);
+        } else {
+          this.segurosDisponibles = segurosDisponiblesEdad;
+          this.cargandoSeguros = false;
+        }
+      },
+      error: (error) => {
+        this.segurosDisponibles = [];
+        this.cargandoSeguros = false;
+        console.error('Error al cargar seguros:', error);
+      }
+    });
+  }
+
+  // Cargar información de seguros específicos (los que están fuera de rango pero ya los tiene)
+  cargarSegurosEspecificos(idsSegurosFueraRango: number[], segurosEnRango: SeguroModel[]) {
+    // Cargar todos los seguros para obtener los que están fuera de rango
+    this.seguroService.ConsultarSeguros({ 
+      paginaActual: 1, 
+      tamanioPagina: 1000,
+      termino: '' 
+    }).subscribe({
+      next: (response) => {
+        const todosSeguros = response?.datos?.seguros ?? [];
+        
+        // Filtrar solo los seguros que el asegurado tiene pero están fuera de rango
+        const segurosFueraRango = todosSeguros.filter((s: SeguroModel) => 
+          idsSegurosFueraRango.includes(s.idSeguro)
+        );
+        
+        // Marcar los seguros fuera de rango con una propiedad especial
+        segurosFueraRango.forEach((s: any) => {
+          s.fueraDeRango = true;
+        });
+        
+        // Combinar seguros en rango + seguros fuera de rango
+        this.segurosDisponibles = [...segurosEnRango, ...segurosFueraRango];
+        
+        this.cargandoSeguros = false;
+        
+        if (segurosFueraRango.length > 0) {
+          this.alertService.warning(
+            'Seguros fuera de rango',
+            `El asegurado tiene ${segurosFueraRango.length} seguro(s) que están fuera del rango de edad actual. Puede mantenerlos o quitarlos.`
+          );
+        }
+      },
+      error: (error) => {
+        // Si falla, al menos mostrar los seguros en rango
+        this.segurosDisponibles = segurosEnRango;
+        this.cargandoSeguros = false;
+        console.error('Error al cargar seguros específicos:', error);
+      }
+    });
+  }
+
   cargarSeguros() {
-    // Solo cargar si NO hay edad calculada
     const edad = this.aseguradoForm.get('edad')?.value;
     
     if (edad && edad > 0) {
-      // Si ya hay edad, usar el método específico
       this.cargarSegurosPorEdad(edad);
     } else {
-      // Si no hay edad, cargar todos los seguros (modo anterior)
       this.cargandoSeguros = true;
-
       this.seguroService.ConsultarSeguros(this.filtros).subscribe({
         next: (response) => {
           this.segurosDisponibles = response?.datos?.seguros ?? [];
@@ -253,7 +305,6 @@ export class RegistroAsegurado {
     return seguros.includes(id);
   }
 
-  // MÉTODO MODIFICADO: No carga seguros inmediatamente
   open(initialAsegurado?: AseguradoModel) {
     if (initialAsegurado) {
       this.aseguradoUpdt = initialAsegurado;
@@ -267,16 +318,13 @@ export class RegistroAsegurado {
     }
 
     this.modalDialog?.nativeElement.showModal();
-    
-    // MODIFICADO: No cargar seguros inmediatamente, esperar a que se ingrese la fecha
-    // Los seguros se cargarán automáticamente cuando se ingrese la fecha de nacimiento
   }
 
   closeModal() {
     this.modalDialog.nativeElement.close();
     this.aseguradoUpdt = null;
     this.segurosSeleccionados = [];
-    this.segurosDisponibles = []; // ✅ AGREGAR ESTA LÍNEA
+    this.segurosDisponibles = [];
     this.setEmptyForm();
   }
 
@@ -373,14 +421,17 @@ export class RegistroAsegurado {
           const edadCalc = this.calcularEdad(datosAsegurado.fechaNacimiento);
           this.aseguradoForm.get('edad')?.setValue(edadCalc, { emitEvent: false });
           
-          // Cargar seguros por edad
-          if (edadCalc > 0) {
-            this.cargarSegurosPorEdad(edadCalc);
-          }
-          
+          // Obtener IDs de seguros que ya tiene el asegurado
           this.segurosSeleccionados = res.datos.asegurado.map((s: any) =>
             typeof s === 'object' ? s.idSeguro : s
           );
+          
+          // ⚠️ CLAVE: Usar método especial que incluye seguros fuera de rango
+          if (edadCalc > 0) {
+            this.cargarSegurosParaActualizacion(edadCalc, this.segurosSeleccionados);
+          } else {
+            this.segurosDisponibles = [];
+          }
           
           if (this.segurosSeleccionados.length > 0) {
             this.aseguradoForm.get('seleccionarSeguros')?.setValue(true);
@@ -389,7 +440,6 @@ export class RegistroAsegurado {
               this.aseguradoForm.get('seguros')?.setValue(this.segurosSeleccionados);
               this.aseguradoForm.get('seguros')?.updateValueAndValidity();
               this.aseguradoForm.updateValueAndValidity();
-              
             }, 100);
           } else {
             this.aseguradoForm.patchValue({
@@ -411,7 +461,6 @@ export class RegistroAsegurado {
           const edadCalc = this.calcularEdad(this.aseguradoUpdt!.fechaNacimiento);
           this.aseguradoForm.get('edad')?.setValue(edadCalc, { emitEvent: false });
           
-          // Cargar seguros por edad
           if (edadCalc > 0) {
             this.cargarSegurosPorEdad(edadCalc);
           }

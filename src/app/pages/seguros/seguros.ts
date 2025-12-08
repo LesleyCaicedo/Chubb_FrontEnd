@@ -13,10 +13,11 @@ import { VizualizarAsegurados } from './modals/vizualizar.asegurados/vizualizar.
 import { AlertService } from '../../services/alert';
 import { Account as AccountService } from '../../services/account';
 import { Router } from '@angular/router';
+import { SegurosCargaMasiva } from '../seguros-carga-masiva/seguros-carga-masiva';
 
 @Component({
   selector: 'app-seguros',
-  imports: [NgIcon, Paginador, CommonModule, RegistroSeguro, VizualizarAsegurados],
+  imports: [NgIcon, Paginador, CommonModule, RegistroSeguro, VizualizarAsegurados, SegurosCargaMasiva],
   templateUrl: './seguros.html',
   styleUrl: './seguros.css',
   providers: [

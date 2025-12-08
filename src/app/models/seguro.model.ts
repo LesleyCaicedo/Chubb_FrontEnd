@@ -9,4 +9,5 @@ export interface SeguroModel {
   eliminado: boolean;
   asegurados?: number[] | null;
   usuarioGestor: string;
+  fueraDeRango?: boolean;
 }

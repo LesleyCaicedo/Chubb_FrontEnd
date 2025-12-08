@@ -120,11 +120,9 @@ export class AseguradosCargaMasiva {
   }
 
   consultarSeguros(): void {
-    // ✅ CAMBIO: Ahora siempre permitir la búsqueda con o sin edades
     const edadMinNum = this.edadMin ? parseInt(this.edadMin) : null;
     const edadMaxNum = this.edadMax ? parseInt(this.edadMax) : null;
 
-    // Validar solo si se ingresaron ambas edades
     if (edadMinNum !== null && edadMaxNum !== null && edadMinNum > edadMaxNum) {
       Swal.fire({
         title: "Rango inválido",

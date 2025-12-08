@@ -17,14 +17,9 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-2">
                         Nombre Completo <span class="text-red-500">*</span>
                     </label>
-                    <input 
-                        type="text" 
-                        formControlName="nombre" 
-                        placeholder="Ingrese el nombre completo"
-                        (keypress)="onlyLetters($event)"
-                        class="input input-bordered w-full focus:input-primary" 
-                    />
-                    <div *ngIf="aseguradoForm.get('nombre')?.invalid && aseguradoForm.get('nombre')?.touched" 
+                    <input type="text" formControlName="nombre" placeholder="Ingrese el nombre completo"
+                        (keypress)="onlyLetters($event)" class="input input-bordered w-full focus:input-primary" />
+                    <div *ngIf="aseguradoForm.get('nombre')?.invalid && aseguradoForm.get('nombre')?.touched"
                         class="text-red-500 text-xs mt-1">
                         <span *ngIf="aseguradoForm.get('nombre')?.errors?.['required']">
                             El nombre es requerido
@@ -40,15 +35,9 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-2">
                         Cédula <span class="text-red-500">*</span>
                     </label>
-                    <input 
-                        type="text" 
-                        formControlName="cedula" 
-                        placeholder="xxxxxxxxxx"
-                        maxlength="10"
-                        (keypress)="onlyNumbers($event)"
-                        class="input input-bordered w-full focus:input-primary" 
-                    />
-                    <div *ngIf="aseguradoForm.get('cedula')?.invalid && aseguradoForm.get('cedula')?.touched" 
+                    <input type="text" formControlName="cedula" placeholder="xxxxxxxxxx" maxlength="10"
+                        (keypress)="onlyNumbers($event)" class="input input-bordered w-full focus:input-primary" />
+                    <div *ngIf="aseguradoForm.get('cedula')?.invalid && aseguradoForm.get('cedula')?.touched"
                         class="text-red-500 text-xs mt-1">
                         <span *ngIf="aseguradoForm.get('cedula')?.errors?.['required']">
                             La cédula es requerida
@@ -64,15 +53,9 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-2">
                         Teléfono <span class="text-red-500">*</span>
                     </label>
-                    <input 
-                        type="text" 
-                        formControlName="telefono" 
-                        placeholder="xxxxxxxxxx"
-                        maxlength="10"
-                        (keypress)="onlyNumbers($event)"
-                        class="input input-bordered w-full focus:input-primary" 
-                    />
-                    <div *ngIf="aseguradoForm.get('telefono')?.invalid && aseguradoForm.get('telefono')?.touched" 
+                    <input type="text" formControlName="telefono" placeholder="xxxxxxxxxx" maxlength="10"
+                        (keypress)="onlyNumbers($event)" class="input input-bordered w-full focus:input-primary" />
+                    <div *ngIf="aseguradoForm.get('telefono')?.invalid && aseguradoForm.get('telefono')?.touched"
                         class="text-red-500 text-xs mt-1">
                         <span *ngIf="aseguradoForm.get('telefono')?.errors?.['required']">
                             El teléfono es requerido
@@ -82,20 +65,16 @@
                         </span>
                     </div>
                 </div>
-                
+
                 <!-- Fecha de Nacimiento -->
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">
                         Fecha de Nacimiento <span class="text-red-500">*</span>
                     </label>
-                    <input 
-                        type="date" 
-                        formControlName="fechaNacimiento"
-                        [max]="today"
-                        class="input input-bordered w-full focus:input-primary" 
-                        (change)="onFechaNacimientoChange($event)"
-                    />
-                    <div *ngIf="aseguradoForm.get('fechaNacimiento')?.invalid && aseguradoForm.get('fechaNacimiento')?.touched" 
+                    <input type="date" formControlName="fechaNacimiento" [max]="today"
+                        class="input input-bordered w-full focus:input-primary"
+                        (change)="onFechaNacimientoChange($event)" />
+                    <div *ngIf="aseguradoForm.get('fechaNacimiento')?.invalid && aseguradoForm.get('fechaNacimiento')?.touched"
                         class="text-red-500 text-xs mt-1">
                         La fecha de nacimiento es requerida
                     </div>
@@ -106,13 +85,8 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-2">
                         Edad
                     </label>
-                    <input 
-                        type="text" 
-                        formControlName="edad"
-                        placeholder="Se calcula automáticamente"
-                        readonly
-                        class="input input-bordered w-full bg-gray-100 cursor-not-allowed" 
-                    />
+                    <input type="text" formControlName="edad" placeholder="Se calcula automáticamente" readonly
+                        class="input input-bordered w-full bg-gray-100 cursor-not-allowed" />
                 </div>
 
                 <!-- Checkbox para seguro -->
@@ -133,13 +107,12 @@
                 </div>
 
                 <!-- Selección de Seguros -->
-                <div *ngIf="aseguradoForm.get('seleccionarSeguros')?.value"
-                    class="md:col-span-2">
+                <div *ngIf="aseguradoForm.get('seleccionarSeguros')?.value" class="md:col-span-2">
                     <label class="block text-sm font-semibold text-gray-700 mb-2">
                         Seguros <span class="text-red-500">*</span>
                     </label>
                     <p class="text-xs text-gray-500 mb-3">Seleccione uno o más seguros</p>
-                    
+
                     <!-- Loading state -->
                     <div *ngIf="cargandoSeguros" class="flex justify-center items-center py-8">
                         <span class="loading loading-spinner loading-md"></span>
@@ -148,59 +121,71 @@
 
                     <!-- Seguros disponibles -->
                     <div *ngIf="!cargandoSeguros" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div 
-                            *ngFor="let seguro of segurosDisponibles" 
+                        <div *ngFor="let seguro of segurosDisponibles"
                             class="border-2 rounded-lg p-4 cursor-pointer transition-all hover:shadow-md"
-                            [class.border-indigo-500]="isSeguroSeleccionado(seguro.idSeguro)"
-                            [class.bg-indigo-50]="isSeguroSeleccionado(seguro.idSeguro)"
-                            [class.border-gray-200]="!isSeguroSeleccionado(seguro.idSeguro)"
-                        >
+                            [class.border-indigo-500]="isSeguroSeleccionado(seguro.idSeguro) && !seguro.fueraDeRango"
+                            [class.bg-indigo-50]="isSeguroSeleccionado(seguro.idSeguro) && !seguro.fueraDeRango"
+                            [class.border-warning]="seguro.fueraDeRango"
+                            [class.bg-warning]="seguro.fueraDeRango && isSeguroSeleccionado(seguro.idSeguro)"
+                            [class.bg-warning/10]="seguro.fueraDeRango && !isSeguroSeleccionado(seguro.idSeguro)"
+                            [class.border-gray-200]="!isSeguroSeleccionado(seguro.idSeguro) && !seguro.fueraDeRango">
                             <div class="flex items-start gap-3">
-                                <input 
-                                    type="checkbox" 
+                                <input type="checkbox"
                                     [checked]="aseguradoForm.get('seguros')?.value?.includes(seguro.idSeguro) || false"
-                                    class="checkbox checkbox-primary mt-1"
-                                    (click)="toggleSeguro(seguro.idSeguro); $event.stopPropagation()"
-                                />
+                                    class="checkbox mt-1" [class.checkbox-primary]="!seguro.fueraDeRango"
+                                    [class.checkbox-warning]="seguro.fueraDeRango"
+                                    (click)="toggleSeguro(seguro.idSeguro); $event.stopPropagation()" />
                                 <div class="flex-1">
-                                    <div class="flex items-center justify-between">
+                                    <div class="flex items-center justify-between flex-wrap gap-2">
                                         <h3 class="font-semibold text-gray-800">{{ seguro.nombre }}</h3>
-                                        <span class="text-xs bg-gray-100 px-2 py-1 rounded">
-                                            {{ seguro.codigo }}
-                                        </span>
+                                        <div class="flex gap-1">
+                                            <span class="text-xs bg-gray-100 px-2 py-1 rounded">
+                                                {{ seguro.codigo }}
+                                            </span>
+                                            <span *ngIf="seguro.fueraDeRango" class="badge badge-warning badge-xs"
+                                                title="Este seguro está fuera del rango de edad actual del asegurado">
+                                                ⚠️ Fuera de rango
+                                            </span>
+                                        </div>
                                     </div>
-                                    
+
                                     <div class="mt-2 space-y-1">
                                         <p class="text-sm text-gray-600">
-                                            <span class="font-medium">Suma Asegurada:</span> 
+                                            <span class="font-medium">Suma Asegurada:</span>
                                             ${{ seguro.sumaAsegurada | number:'1.2-2' }}
                                         </p>
                                         <p class="text-sm text-gray-600">
-                                            <span class="font-medium">Prima:</span> 
+                                            <span class="font-medium">Prima:</span>
                                             ${{ seguro.prima | number:'1.2-2' }}
                                         </p>
-                                        <p *ngIf="seguro.edadMin || seguro.edadMax" 
-                                           class="text-xs text-gray-500">
-                                            <span class="font-medium">Edad:</span> 
+                                        <p *ngIf="seguro.edadMin || seguro.edadMax" class="text-xs"
+                                            [class.text-gray-500]="!seguro.fueraDeRango"
+                                            [class.text-warning-content]="seguro.fueraDeRango">
+                                            <span class="font-medium">Edad permitida:</span>
                                             {{ seguro.edadMin || 0 }} - {{ seguro.edadMax || '∞' }} años
                                         </p>
-                                    </div>
 
-                                    
+                                        <!-- Mensaje adicional para seguros fuera de rango -->
+                                        <p *ngIf="seguro.fueraDeRango"
+                                            class="text-xs text-warning-content bg-warning/20 px-2 py-1 rounded mt-2">
+                                            Este seguro fue asignado previamente cuando el asegurado cumplía con el
+                                            rango de edad.
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Mensaje si no hay seguros -->
-                    <div *ngIf="!cargandoSeguros && segurosDisponibles.length === 0" 
-                         class="text-center py-8 text-gray-500">
+                    <div *ngIf="!cargandoSeguros && segurosDisponibles.length === 0"
+                        class="text-center py-8 text-gray-500">
                         <ng-icon name="heroInformationCircle" size="24"></ng-icon>
                         <p class="mt-2">No hay seguros disponibles</p>
                     </div>
-                    
+
                     <!-- Error de validación -->
-                    <div *ngIf="aseguradoForm.get('seguros')?.invalid && aseguradoForm.get('seguros')?.touched" 
+                    <div *ngIf="aseguradoForm.get('seguros')?.invalid && aseguradoForm.get('seguros')?.touched"
                         class="text-red-500 text-xs mt-2">
                         Debe seleccionar al menos un seguro
                     </div>
@@ -209,19 +194,11 @@
 
             <!-- Buttons -->
             <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-6 sm:mt-8 justify-end">
-                <button 
-                    type="button" 
-                    (click)="closeModal()" 
-                    class="btn btn-soft order-2 sm:order-1"
-                >
+                <button type="button" (click)="closeModal()" class="btn btn-soft order-2 sm:order-1">
                     <ng-icon name="heroXMark"></ng-icon>
                     Cancelar
                 </button>
-                <button 
-                    type="submit" 
-                    [disabled]="aseguradoForm.invalid" 
-                    class="btn btn-primary order-1 sm:order-2"
-                >
+                <button type="submit" [disabled]="aseguradoForm.invalid" class="btn btn-primary order-1 sm:order-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />

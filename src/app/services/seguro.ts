@@ -55,4 +55,8 @@ export class Seguro {
     };
     return this.http.post(`${this.baseUrl}/ConsultarSegurosPorEdad`, body);
   }
+
+  cargaMasiva(formData: FormData, usuarioGestor: string): Observable<ResponseModel>  {
+    return this.http.post<ResponseModel>(`${this.baseUrl}/uploadSeguros?usuarioGestor=${usuarioGestor}`, formData);
+  }
 }
