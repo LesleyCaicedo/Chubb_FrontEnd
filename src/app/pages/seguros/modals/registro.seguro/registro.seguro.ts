@@ -6,6 +6,7 @@ import { SeguroModel } from '../../../../models/seguro.model';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Seguro } from '../../../../services/seguro';
 import { AlertService } from '../../../../services/alert';
+import { Account as AccountService } from '../../../../services/account';
 
 @Component({
   selector: 'app-registro-seguro',
@@ -24,8 +25,13 @@ export class RegistroSeguro implements OnInit, OnChanges {
   @Output() submitEvent = new EventEmitter<boolean>();
   seguroForm: FormGroup<any> = new FormBuilder().group({});
   disable: boolean = false;
+  usuarioGestor: string = '';
 
-  constructor(private fb: FormBuilder, private seguroService: Seguro, private alertService: AlertService) { }
+  constructor(private fb: FormBuilder, private seguroService: Seguro, private alertService: AlertService,
+    private accountService: AccountService
+  ) { 
+    this.usuarioGestor = this.accountService.obtenerSesion()?.nombre!;
+  }
 
   ngOnInit(): void {
     this.setEmptyForm();
@@ -183,7 +189,8 @@ export class RegistroSeguro implements OnInit, OnChanges {
       sumaAsegurada: formValue.sumaAsegurada,
       prima: this.calcularPrima(),
       edadMin: formValue.rangoEdad && formValue.edadMin ? formValue.edadMin : null,
-      edadMax: formValue.rangoEdad && formValue.edadMax ? formValue.edadMax : null
+      edadMax: formValue.rangoEdad && formValue.edadMax ? formValue.edadMax : null,
+      usuarioGestor: this.usuarioGestor
     } as SeguroModel;
 
     this.seguroService.RegistrarSeguro(seguroData).subscribe({
@@ -210,7 +217,8 @@ export class RegistroSeguro implements OnInit, OnChanges {
       sumaAsegurada: formValue.sumaAsegurada,
       prima: this.calcularPrima(), // Usar la prima calculada
       edadMin: formValue.rangoEdad && formValue.edadMin ? formValue.edadMin : null,
-      edadMax: formValue.rangoEdad && formValue.edadMax ? formValue.edadMax : null
+      edadMax: formValue.rangoEdad && formValue.edadMax ? formValue.edadMax : null,
+      usuarioGestor: this.usuarioGestor
     } as SeguroModel;
 
     this.seguroService.ActualizarSeguro(seguroData).subscribe({
