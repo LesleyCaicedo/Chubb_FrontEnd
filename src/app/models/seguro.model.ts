@@ -8,4 +8,5 @@ export interface SeguroModel {
   edadMax: number | null;
   eliminado: boolean;
   asegurados?: number[] | null;
+  usuarioGestor: string;
 }

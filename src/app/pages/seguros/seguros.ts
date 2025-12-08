@@ -39,6 +39,7 @@ export class Seguros {
   registrosFiltrados: number = 0;
   registrosTotales: number = 0;
   aseguradoSeleccionado: number | null = null;
+  usuarioGestor: string = '';
 
   filtros: FiltradoModel = {
     termino: '',
@@ -52,6 +53,8 @@ export class Seguros {
     if (rol !== 'Administrador') {
       this.router.navigateByUrl('')
     }
+
+    this.usuarioGestor = this.accountService.obtenerSesion()?.nombre!;
   }
 
   ngOnInit(): void {
@@ -112,7 +115,7 @@ export class Seguros {
         );
 
         if (confirmado) {
-          this.seguroService.EliminarSeguro(seguro.idSeguro).subscribe({
+          this.seguroService.EliminarSeguro(seguro.idSeguro, this.usuarioGestor).subscribe({
             next: () => {
               this.alertService.success('¡Eliminado!', 'Seguro eliminado exitosamente');
               this.ConsultarSeguros();
