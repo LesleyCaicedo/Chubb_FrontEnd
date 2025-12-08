@@ -37,4 +37,22 @@ export class Seguro {
   ConsultaGeneral(filtros: FiltradoModel, cedula?: string, codigo?: string): Observable<ResponseModel> {
     return this.http.post<ResponseModel>(`${this.baseUrl}/ConsultaGeneral?cedula=${cedula || ''}&codigo=${codigo || ''}`, filtros);
   }
+
+  ConsultarSegurosPorEdad(edad: number): Observable<any> {
+    const body = {
+      edadMin: edad,
+      edadMax: edad,
+      incluirGenerales: true 
+    };
+    return this.http.post(`${this.baseUrl}/ConsultarSegurosPorEdad`,body);
+  }
+
+    ConsultarSegurosPorRangoEdad(edadMin: number | null, edadMax: number | null, incluirGenerales: boolean): Observable<any> {
+    const body = {
+      edadMin: edadMin,
+      edadMax: edadMax,
+      incluirGenerales: incluirGenerales
+    };
+    return this.http.post(`${this.baseUrl}/ConsultarSegurosPorEdad`, body);
+  }
 }

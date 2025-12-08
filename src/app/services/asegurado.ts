@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { FiltradoModel } from '../models/filtrado.model';
 import { ResponseModel } from '../models/ResponseModel';
 import { Observable } from 'rxjs';
@@ -14,16 +14,16 @@ export class Asegurado {
 
   constructor(private http: HttpClient) { }
 
-  obtenerAsegurados(filtros: FiltradoModel): Observable<ResponseModel>  {
+  obtenerAsegurados(filtros: FiltradoModel): Observable<ResponseModel> {
     return this.http.post<ResponseModel>(`${this.baseUrl}/ConsultarAsegurados`, filtros);
   }
 
-  obtenerSeguros(filtros: FiltradoModel, id: number): Observable<ResponseModel>  {
+  obtenerSeguros(filtros: FiltradoModel, id: number): Observable<ResponseModel> {
     return this.http.post<ResponseModel>(`${this.baseUrl}/ConsultarAseguradoId?id=${id}`, filtros);
   }
 
   RegistrarAsegurado(Seguro: AseguradoModel): Observable<ResponseModel> {
-      return this.http.post<ResponseModel>(`${this.baseUrl}/registrar`, Seguro);
+    return this.http.post<ResponseModel>(`${this.baseUrl}/registrar`, Seguro);
   }
 
   ActualizarAsegurado(Seguro: AseguradoModel): Observable<ResponseModel> {
@@ -33,8 +33,14 @@ export class Asegurado {
   EliminarAsegurado(id: number, usuarioGestor: string): Observable<ResponseModel> {
     return this.http.delete<ResponseModel>(`${this.baseUrl}/EliminarAsegurado/${id}?usuarioGestor=${usuarioGestor}`);
   }
-    
-  cargaMasiva(formData: FormData, usuarioGestor: string): Observable<ResponseModel>  {
-    return this.http.post<ResponseModel>(`${this.baseUrl}/upload?usuarioGestor=${usuarioGestor}`, formData);
+
+  cargaMasiva(formData: FormData, usuarioGestor: string, reglas?: any[]): Observable<any> {
+    let params = new HttpParams().set('usuarioGestor', usuarioGestor);
+
+    if (reglas && reglas.length > 0) {
+      params = params.set('reglasJson', JSON.stringify(reglas));
+    }
+
+    return this.http.post(`${this.baseUrl}/upload`, formData, { params });
   }
 }

@@ -1,14 +1,242 @@
+<!-- asegurados-carga-masiva.component.html -->
 <dialog id="modal_carga_masiva" class="modal">
-    <div class="p-6 max-w-xl mx-auto modal-box">
+    <div class="p-6 max-w-6xl mx-auto modal-box">
         <form method="dialog">
-            <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" (click)="selectedFile = null">✕</button>
+            <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" (click)="resetForm()">✕</button>
         </form>
         <h2 class="text-2xl font-bold mb-4">Carga masiva de asegurados</h2>
+
+        <!-- Toggle para parametrización -->
+        <div class="form-control mb-6">
+            <label class="label cursor-pointer justify-start gap-3">
+                <input type="checkbox" [(ngModel)]="mostrarParametrizacion" (change)="toggleParametrizacion()"
+                    class="toggle toggle-primary" />
+                <div>
+                    <span class="label-text font-semibold">Configurar reglas de asignación personalizadas</span>
+                    <p class="text-xs text-base-content/60">Define rangos de edad personalizados y asigna seguros
+                        específicos</p>
+                </div>
+            </label>
+        </div>
+
+        <!-- Sección de parametrización -->
+        <div *ngIf="mostrarParametrizacion" class="bg-base-200 rounded-lg p-4 mb-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <!-- Panel de configuración -->
+                <div class="card bg-base-100 shadow">
+                    <div class="card-body p-4">
+                        <h3 class="font-semibold mb-3 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <path d="m21 21-4.35-4.35"></path>
+                            </svg>
+                            1. Buscar Seguros
+                        </h3>
+
+                        <!-- Alert informativo -->
+                        <div class="alert alert-info mb-3 py-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                class="stroke-current shrink-0 w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span class="text-xs">Puedes buscar seguros generales y luego aplicarles un rango de edad
+                                específico.</span>
+                        </div>
+
+                        <!-- Checkbox para seguros generales -->
+                        <div class="form-control mb-3 bg-purple-50 rounded-lg p-2">
+                            <label class="label cursor-pointer justify-start gap-2 py-2">
+                                <input type="checkbox" [(ngModel)]="incluirGenerales"
+                                    class="checkbox checkbox-secondary checkbox-sm" />
+                                <span class="label-text text-sm font-medium">
+                                    Incluir seguros sin restricción de edad (Generales)
+                                </span>
+                            </label>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="label py-1">
+                                <span class="label-text text-sm font-medium">Rango de edad para aplicar
+                                    (opcional)</span>
+                            </label>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="form-control">
+                                    <label class="label py-1">
+                                        <span class="label-text text-xs">Edad Mínima</span>
+                                    </label>
+                                    <input type="number" [(ngModel)]="edadMin" placeholder="Ej: 18" min="0"
+                                        class="input input-bordered input-sm" />
+                                </div>
+                                <div class="form-control">
+                                    <label class="label py-1">
+                                        <span class="label-text text-xs">Edad Máxima</span>
+                                    </label>
+                                    <input type="number" [(ngModel)]="edadMax" placeholder="Ej: 65" min="0"
+                                        class="input input-bordered input-sm" />
+                                </div>
+                            </div>
+                            <p class="text-xs text-base-content/50 mt-1">
+                                {{ incluirGenerales ? 'Si defines edades, el seguro general se aplicará SOLO a ese rango.' : 'Define el rango de edad para buscar seguros compatibles.' }}
+                            </p>
+                        </div>
+
+                        <!-- Botón para consultar seguros -->
+                        <button (click)="consultarSeguros()" [disabled]="cargando"
+                            class="btn btn-primary btn-sm w-full mb-3 gap-2">
+                            <svg *ngIf="!cargando" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <path d="m21 21-4.35-4.35"></path>
+                            </svg>
+                            <span class="loading loading-spinner loading-xs" *ngIf="cargando"></span>
+                            {{ cargando ? 'Consultando...' : 'Buscar Seguros Disponibles' }}
+                        </button>
+
+                        <!-- Lista de seguros disponibles -->
+                        <div *ngIf="segurosDisponibles.length > 0">
+                            <label class="label py-1">
+                                <span class="label-text text-sm font-medium">2. Seleccionar Seguro</span>
+                            </label>
+                            <select [(ngModel)]="seguroSeleccionado"
+                                class="select select-bordered select-sm w-full mb-2">
+                                <option value="">-- Seleccione un seguro --</option>
+                                <option *ngFor="let seguro of segurosDisponibles" [value]="seguro.idSeguro">
+                                    {{ seguro.nombre }} - ${{ seguro.prima }}
+                                    {{ seguro.esGeneral ? ' (Sin restricción)' : ' (Cubre: ' + seguro.edadMin + '-' +
+                                    seguro.edadMax + ')' }}
+                                </option>
+                            </select>
+
+                            <div class="alert alert-warning py-2 mb-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-5 w-5"
+                                    fill="none" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                                <span class="text-xs">
+                                    <ng-container *ngIf="edadMin && edadMax">
+                                        El seguro se aplicará SOLO para personas entre <strong>{{ edadMin }} y {{
+                                            edadMax }} años</strong>
+                                    </ng-container>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Botón para agregar regla -->
+                        <button *ngIf="seguroSeleccionado" (click)="agregarRegla()"
+                            class="btn btn-success btn-sm w-full gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            Agregar Regla de Asignación
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Panel de reglas configuradas -->
+                <div class="card bg-base-100 shadow">
+                    <div class="card-body p-4">
+                        <h3 class="font-semibold mb-3">
+                            2. Reglas Configuradas ({{ reglas.length }})
+                        </h3>
+
+                        <!-- Sin reglas -->
+                        <div *ngIf="reglas.length === 0" class="text-center py-8 bg-base-200 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 mx-auto mb-2 opacity-30"
+                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <p class="text-sm text-base-content/60 mb-1">No hay reglas configuradas</p>
+                            <p class="text-xs text-base-content/40">Configure al menos una regla para procesar la carga
+                            </p>
+                        </div>
+
+                        <!-- Tabla de reglas -->
+                        <div *ngIf="reglas.length > 0" class="overflow-x-auto max-h-80 overflow-y-auto">
+                            <table class="table table-xs table-pin-rows">
+                                <thead>
+                                    <tr class="bg-base-200">
+                                        <th class="w-8">N°</th>
+                                        <th>Seguro</th>
+                                        <th class="text-right">Prima</th>
+                                        <th>Rango Aplicado</th>
+                                        <th class="w-12"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let regla of reglas; let i = index" class="hover">
+                                        <td class="font-mono text-base-content/60">{{ i + 1 }}</td>
+                                        <td>
+                                            <div class="font-medium text-xs">{{ regla.nombreSeguro }}</div>
+                                        </td>
+                                        <td class="text-right">
+                                            <span class="font-mono text-xs">${{ regla.prima }}</span>
+                                        </td>
+                                        <td>
+                                            <div class="flex flex-col gap-1">
+                                                <!-- Rango configurado por el usuario -->
+                                                <span *ngIf="regla.esGeneral"
+                                                    class="badge badge-secondary badge-xs gap-1">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                                    </svg>
+                                                    Todas las edades
+                                                </span>
+                                                <span *ngIf="!regla.esGeneral"
+                                                    class="badge badge-primary badge-xs gap-1">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                                    </svg>
+                                                    {{ regla.edadMinima || '0' }} - {{ regla.edadMaxima || '∞' }} años
+                                                </span>
+
+                                                <!-- Rango original del seguro (solo informativo) -->
+                                                <span *ngIf="regla.rangoOriginalSeguro"
+                                                    class="text-[10px] text-base-content/40 font-normal">
+                                                    Original: {{ regla.rangoOriginalSeguro }}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <button (click)="eliminarRegla(i)"
+                                                class="btn btn-ghost btn-xs text-error hover:bg-error/10"
+                                                title="Eliminar regla">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                                    <path
+                                                        d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                                    </path>
+                                                </svg>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Zona Drag & Drop -->
         <div class="border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition hover:bg-base-200"
-            [class.border-primary]="isDragging" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)"
-            (drop)="onDrop($event)" (click)="fileInput.click()">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 mx-auto mb-3" fill="currentColor"
+            [class.border-primary]="isDragging" [class.bg-primary/5]="isDragging" (dragover)="onDragOver($event)"
+            (dragleave)="onDragLeave($event)" (drop)="onDrop($event)" (click)="fileInput.click()">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 mx-auto mb-3 opacity-50" fill="currentColor"
                 viewBox="0 0 16 16">
                 <path fill-rule="evenodd"
                     d="M7.646 5.146a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 6.707V10.5a.5.5 0 0 1-1 0V6.707L6.354 7.854a.5.5 0 1 1-.708-.708z" />
@@ -23,13 +251,28 @@
         <input type="file" #fileInput class="hidden" (change)="onFileSelected($event)" accept=".xlsx,.xls,.txt" />
 
         <!-- Archivo seleccionado -->
-        <div *ngIf="selectedFile" class="alert alert-info mt-4">
-            Archivo seleccionado: <strong>{{ selectedFile.name }}</strong>
+        <div *ngIf="selectedFile" class="alert alert-success mt-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-5 w-5" fill="none"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+                <div class="text-sm font-medium">Archivo seleccionado</div>
+                <div class="text-xs opacity-80">{{ selectedFile.name }}</div>
+            </div>
         </div>
 
-        <!-- Boton de cargar -->
-        <button class="btn btn-primary mt-4 w-full" [disabled]="!selectedFile" (click)="uploadFile()">
-            Subir archivo
+        <!-- Botón de cargar -->
+        <button class="btn btn-primary mt-4 w-full gap-2" [disabled]="!selectedFile || cargando" (click)="uploadFile()">
+            <svg *ngIf="!cargando" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <span class="loading loading-spinner loading-sm" *ngIf="cargando"></span>
+            {{ cargando ? 'Procesando carga masiva...' : 'Procesar Carga Masiva' }}
         </button>
     </div>
 </dialog>
